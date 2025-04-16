@@ -18,35 +18,15 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-nodeThe failure occurred because the `webpack-cli` package is not@v4
+      uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version installed, and the `npx webpack` command in your }}
+        node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
- workflow's "Build" step requires it. The logs show      run: |
+      run: |
         npm install
-        npm install - that the build process prompts the user to install `D webpack-cli  # Ensure webpack-cli is installed
+        npm install -D webpack-cli
 
-webpack-cli`, but the CI environment cannot handle interactive prompts, causing the job to fail.
-
-### Solution    - name: Build
+    - name: Build
       run: |
         npx webpack
-``
-To resolve this issue, you need to explicitly install`
-
-### Explanation:
-1. **Install `webpack-cli`:** Added `npm install the `webpack-cli` package as a development dependency -D webpack-cli` to ensure `webpack-cli before running `npx webpack`.
-
-### Updated Workflow
-` is installed as a development dependency.
-2. **NoModify the workflow file `.github/workflows/ prompts:** This ensures that the build process won'twebpack.yml` to include a step that installs `webpack-cli stop to prompt for user input, which is not supported in CI`. Below is the updated YAML snippet for your workflow:
-
-/CD environments.
-
-Commit these changes to your repository to resolve the issue. Let me know if you```yaml
-name: NodeJS with Webpack
-
-on:
-  push:
-    branches need further assistance!
