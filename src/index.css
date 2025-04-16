@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900;
+  }
+}
+
+.fc .fc-event {
+  @apply text-sm leading-tight overflow-hidden rounded p-1 shadow-sm;
+}
+
+.fc .fc-event-title {
+  @apply font-medium;
+}
+
+.fc .fc-timegrid-slot {
+  @apply h-12;
+}
+
+.fc .fc-timegrid-event {
+  @apply rounded-md shadow-sm;
+}
+
+.fc .fc-timegrid-event .fc-event-main {
+  @apply p-1;
+}
+
+.fc .fc-timegrid-event .fc-event-time {
+  @apply text-xs font-medium;
+}
+
+.fc .fc-timegrid-event .fc-event-title {
+  @apply text-sm font-medium;
+}
+
+.fc-tooltip {
+  @apply z-50;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-xl font-bold;
+}
+
+.fc .fc-button {
+  @apply bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.fc .fc-button-primary {
+  @apply bg-primary-600 text-white border-transparent hover:bg-primary-700;
+}
+
+.fc .fc-button-active {
+  @apply bg-primary-700;
+}
+
+.fc .fc-timegrid-axis {
+  @apply text-sm font-medium;
+}
+
+.fc .fc-timegrid-slot-label {
+  @apply text-sm font-medium;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+  @apply border-red-500;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  @apply border-red-500;
+}
