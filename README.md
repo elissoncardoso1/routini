@@ -1,4 +1,4 @@
-# Escala React
+# Routini
 
 Sistema de agendamento e gerenciamento de consultas desenvolvido em React.
 
