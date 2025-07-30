@@ -12,22 +12,30 @@
     "preview": "vite preview",
     "electron:dev": "NODE_ENV=development electron src/electron.ts",
     "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
     "electron:preview": "npm run build && electron ."
   },
   "build": {
     "appId": "com.escala.app",
-    "productName": "Escala",
+    "productName": "Escala - Sistema de Agendamento",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "package.json"
     ],
     "win": {
       "target": [
         {
           "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
           "arch": [
             "x64"
           ]
@@ -38,7 +46,13 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Escala",
+      "artifactName": "Escala-Setup-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "Escala-${version}-portable.exe"
     }
   },
   "dependencies": {
