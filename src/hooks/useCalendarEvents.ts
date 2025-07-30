@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Atendimento, Profissional, Paciente, Funcao } from '../types';
 import { db } from '../db';
 import { CORES_FUNCAO } from '../constants/calendar';
@@ -29,7 +29,8 @@ export function useCalendarEvents() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const loadData = async () => {
+  // Memoizar a função de carregamento para evitar re-criações
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -42,6 +43,7 @@ export function useCalendarEvents() {
       setProfissionais(loadedProfissionais);
       setPacientes(loadedPacientes);
 
+      // Memoizar a criação dos eventos do calendário
       const eventosCalendario = await Promise.all(
         loadedAtendimentos
           .filter(atendimento => !atendimento.cancelado)
@@ -81,17 +83,19 @@ export function useCalendarEvents() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
-  const findEventById = (id: string) => {
+  // Memoizar a função de busca por ID
+  const findEventById = useCallback((id: string) => {
     return events.find(e => e.id === id);
-  };
+  }, [events]);
 
-  const convertEventToAtendimento = (event: CalendarEvent): Atendimento => {
+  // Memoizar a conversão de evento para atendimento
+  const convertEventToAtendimento = useCallback((event: CalendarEvent): Atendimento => {
     return {
       id: event.id,
       profissionalId: event.profissionalId,
@@ -101,7 +105,31 @@ export function useCalendarEvents() {
       fim: new Date(event.end),
       observacoes: event.observacoes
     };
-  };
+  }, []);
+
+  // Memoizar dados derivados para evitar recálculos
+  const eventsByDate = useMemo(() => {
+    const grouped = new Map<string, CalendarEvent[]>();
+    events.forEach(event => {
+      const date = new Date(event.start).toDateString();
+      if (!grouped.has(date)) {
+        grouped.set(date, []);
+      }
+      grouped.get(date)!.push(event);
+    });
+    return grouped;
+  }, [events]);
+
+  const eventsByProfissional = useMemo(() => {
+    const grouped = new Map<string, CalendarEvent[]>();
+    events.forEach(event => {
+      if (!grouped.has(event.profissionalId)) {
+        grouped.set(event.profissionalId, []);
+      }
+      grouped.get(event.profissionalId)!.push(event);
+    });
+    return grouped;
+  }, [events]);
 
   return {
     events,
@@ -111,6 +139,8 @@ export function useCalendarEvents() {
     error,
     loadData,
     findEventById,
-    convertEventToAtendimento
+    convertEventToAtendimento,
+    eventsByDate,
+    eventsByProfissional
   };
 } 

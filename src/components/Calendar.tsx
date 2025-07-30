@@ -2,10 +2,9 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { EventClickArg } from '@fullcalendar/core';
-import { DateClickArg } from '@fullcalendar/interaction';
-import { Atendimento, Funcao } from '../types';
+import { Atendimento } from '../types';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import './Calendar.css';
@@ -18,9 +17,6 @@ import { Dialog } from '@headlessui/react';
 export function Calendar() {
   const location = useLocation();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(
-    location.state?.selectedDate ? new Date(location.state.selectedDate) : new Date()
-  );
   const [selectedEvent, setSelectedEvent] = useState<Atendimento | undefined>(undefined);
   const calendarRef = useRef<FullCalendar>(null);
 
@@ -31,26 +27,29 @@ export function Calendar() {
     loadData
   } = useCalendarEvents();
 
+  // Memoizar a configuração do calendário
+  const calendarConfig = useMemo(() => ({
+    ...CALENDAR_CONFIG,
+    plugins: [timeGridPlugin, interactionPlugin, dayGridPlugin],
+    initialView: "timeGridWeek" as const
+  }), []);
+
   // Efeito para verificar se há uma data selecionada na navegação
   useEffect(() => {
-    if (location.state?.selectedDate) {
+    if (location.state?.selectedDate && calendarRef.current) {
       const dateToGo = new Date(location.state.selectedDate);
-      setSelectedDate(dateToGo);
-      
-      if (calendarRef.current) {
-        const calendarApi = calendarRef.current.getApi();
-        calendarApi.gotoDate(dateToGo);
-      }
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.gotoDate(dateToGo);
     }
   }, [location.state?.selectedDate]);
 
-  const handleDateClick = (info: DateClickArg) => {
-    setSelectedDate(info.date);
+  // Memoizar handlers para evitar re-criações
+  const handleDateClick = useCallback(() => {
     setSelectedEvent(undefined);
     setModalOpen(true);
-  };
+  }, []);
 
-  const handleEventClick = (info: EventClickArg) => {
+  const handleEventClick = useCallback((info: EventClickArg) => {
     const event = events.find(e => e.id === info.event.id);
     if (event) {
       setSelectedEvent({
@@ -62,20 +61,57 @@ export function Calendar() {
         fim: new Date(event.end),
         observacoes: event.observacoes
       });
-      setSelectedDate(new Date(event.start));
       setModalOpen(true);
     }
-  };
+  }, [events]);
 
-  const handleSaveAppointment = async () => {
+  const handleSaveAppointment = useCallback(async () => {
     await loadData();
     setModalOpen(false);
-  };
+  }, [loadData]);
+
+  const handleCloseModal = useCallback(() => {
+    setModalOpen(false);
+    setSelectedEvent(undefined);
+  }, []);
+
+  // Memoizar o evento de montagem do tooltip
+  const handleEventDidMount = useCallback((info: any) => {
+    tippy(info.el, {
+      content: info.event.extendedProps.tooltip,
+      placement: 'top',
+      arrow: true,
+      theme: 'light',
+      allowHTML: true
+    });
+  }, []);
+
+  // Memoizar o conteúdo do evento
+  const handleEventContent = useCallback((arg: any) => {
+    const icon = arg.event.extendedProps.icon ?? '📌';
+    const [paciente, profissional] = arg.event.title.split(' - ');
+
+    return (
+      <div 
+        className="h-full w-full px-2 py-1 rounded border-l-4 text-xs leading-tight overflow-hidden shadow-sm"
+        style={{
+          backgroundColor: arg.event.backgroundColor ?? '#f3f4f6',
+          borderLeftColor: arg.event.borderColor ?? '#3b82f6',
+          color: arg.event.textColor ?? '#111827'
+        }}
+      >
+        <div className="font-semibold truncate flex items-center gap-1">
+          {icon} {paciente}
+        </div>
+        <div className="text-[11px] text-gray-700 truncate">{profissional}</div>
+      </div>
+    );
+  }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-12rem)]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -92,39 +128,10 @@ export function Calendar() {
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <FullCalendar
         ref={calendarRef}
-        plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]}
-        initialView="timeGridWeek"
-        {...CALENDAR_CONFIG}
+        {...calendarConfig}
         events={events}
-        eventDidMount={(info) => {
-          tippy(info.el, {
-            content: info.event.extendedProps.tooltip,
-            placement: 'top',
-            arrow: true,
-            theme: 'light',
-            allowHTML: true
-          });
-        }}
-        eventContent={(arg) => {
-          const icon = arg.event.extendedProps.icon ?? '📌';
-          const [paciente, profissional] = arg.event.title.split(' - ');
-
-          return (
-            <div 
-              className="h-full w-full px-2 py-1 rounded border-l-4 text-xs leading-tight overflow-hidden shadow-sm"
-              style={{
-                backgroundColor: arg.event.backgroundColor ?? '#f3f4f6',
-                borderLeftColor: arg.event.borderColor ?? '#3b82f6',
-                color: arg.event.textColor ?? '#111827'
-              }}
-            >
-              <div className="font-semibold truncate flex items-center gap-1">
-                {icon} {paciente}
-              </div>
-              <div className="text-[11px] text-gray-700 truncate">{profissional}</div>
-            </div>
-          );
-        }}
+        eventDidMount={handleEventDidMount}
+        eventContent={handleEventContent}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
@@ -136,7 +143,7 @@ export function Calendar() {
 
       <Dialog
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleCloseModal}
         className="fixed inset-0 z-50 overflow-y-auto"
       >
         <div className="flex items-center justify-center min-h-screen">
@@ -151,10 +158,7 @@ export function Calendar() {
               <AgendamentoForm
                 atendimento={selectedEvent}
                 onSave={handleSaveAppointment}
-                onCancel={() => {
-                  setModalOpen(false);
-                  setSelectedEvent(undefined);
-                }}
+                onCancel={handleCloseModal}
               />
             </div>
           </div>

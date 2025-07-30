@@ -69,7 +69,7 @@ export function BackupManager() {
           <button
             onClick={handleBackup}
             disabled={isBackingUp}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="w-full px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors disabled:opacity-50"
           >
             {isBackingUp ? 'Gerando backup...' : 'Fazer backup agora'}
           </button>

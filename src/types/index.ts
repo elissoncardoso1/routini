@@ -25,20 +25,20 @@ export type Funcao =
   | 'Estagiário';
 
 export const CORES_FUNCAO: Record<Funcao, string> = {
-  'Analista do Comportamento': '#1F77B4',
-  'AT': '#FF7F0E',
-  'Supervisor Clínico': '#2CA02C',
-  'Psicólogo Clínico': '#9467BD',
-  'Terapeuta Ocupacional': '#8C564B',
-  'Fonoaudiólogo': '#17BECF',
-  'Educador Físico': '#D62728',
-  'Musicoterapeuta': '#E377C2',
-  'Pedagogo': '#BCBD22',
-  'Nutricionista': '#98DF8A',
-  'Médico': '#7F7F7F',
-  'Coordenador Clínico': '#1A1A1A',
-  'Recepcionista': '#AEC7E8',
-  'Estagiário': '#C5B0D5'
+  'Analista do Comportamento': '#8925F2',
+  'AT': '#6F1CC7',
+  'Supervisor Clínico': '#D9B6FF',
+  'Psicólogo Clínico': '#7c3aed',
+  'Terapeuta Ocupacional': '#5b21b6',
+  'Fonoaudiólogo': '#4c1d95',
+  'Educador Físico': '#3b82f6',
+  'Musicoterapeuta': '#8b5cf6',
+  'Pedagogo': '#a78bfa',
+  'Nutricionista': '#c4b5fd',
+  'Médico': '#ddd6fe',
+  'Coordenador Clínico': '#ede9fe',
+  'Recepcionista': '#f5f3ff',
+  'Estagiário': '#f3e8ff'
 };
 
 export type Disponibilidade = {

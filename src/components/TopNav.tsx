@@ -2,19 +2,22 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Dialog } from '@headlessui/react';
 import { AgendamentoForm } from './AgendamentoForm';
+import { LogoIcon } from './Logo';
 
 export function TopNav() {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="bg-white shadow-sm px-4 py-3 flex justify-between items-center border-b">
-      <div className="flex space-x-4 text-sm font-medium">
+      <div className="flex items-center space-x-6">
+        <LogoIcon size="sm" />
+        <div className="flex space-x-4 text-sm font-medium">
         <NavLink 
           to="/" 
           className={({ isActive }) =>
             isActive 
-              ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-              : 'text-gray-600 hover:text-blue-600'
+              ? 'text-primary-500 border-b-2 border-primary-500 pb-1' 
+              : 'text-gray-600 hover:text-primary-500'
           }
           end
         >
@@ -24,8 +27,8 @@ export function TopNav() {
           to="/dashboard" 
           className={({ isActive }) =>
             isActive 
-              ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-              : 'text-gray-600 hover:text-blue-600'
+              ? 'text-primary-500 border-b-2 border-primary-500 pb-1' 
+              : 'text-gray-600 hover:text-primary-500'
           }
         >
           Dashboard
@@ -34,17 +37,18 @@ export function TopNav() {
           to="/cadastro" 
           className={({ isActive }) =>
             isActive 
-              ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-              : 'text-gray-600 hover:text-blue-600'
+              ? 'text-primary-500 border-b-2 border-primary-500 pb-1' 
+              : 'text-gray-600 hover:text-primary-500'
           }
         >
           Cadastros
         </NavLink>
+        </div>
       </div>
       <div>
         <button 
           onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 transition-colors"
+          className="bg-primary-500 text-white px-3 py-1.5 rounded text-sm hover:bg-primary-600 transition-colors"
         >
           + Novo Atendimento
         </button>

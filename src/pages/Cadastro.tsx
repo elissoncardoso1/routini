@@ -48,7 +48,7 @@ export function Cadastro() {
         <h1 className="text-2xl font-bold text-gray-900">Cadastros</h1>
         <div className="space-x-2">
           <button 
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-500 rounded-md hover:bg-primary-600"
             onClick={() => setShowProfissionalForm(true)}
           >
             Novo Cadastro
@@ -68,13 +68,13 @@ export function Cadastro() {
           </p>
           <div className="flex justify-between">
             <button 
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-primary-500 hover:text-primary-600"
               onClick={handleVerProfissionais}
             >
               Ver todos →
             </button>
             <button 
-              className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-md hover:bg-blue-200"
+              className="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded-md hover:bg-primary-200"
               onClick={() => setShowProfissionalForm(true)}
             >
               Novo
@@ -93,13 +93,13 @@ export function Cadastro() {
           </p>
           <div className="flex justify-between">
             <button 
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-primary-500 hover:text-primary-600"
               onClick={handleVerPacientes}
             >
               Ver todos →
             </button>
             <button 
-              className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-md hover:bg-blue-200"
+              className="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded-md hover:bg-primary-200"
               onClick={() => setShowPacienteForm(true)}
             >
               Novo
@@ -116,7 +116,7 @@ export function Cadastro() {
           <p className="text-sm text-gray-600 mb-4">
             Configure horários, tipos de atendimento e outras opções.
           </p>
-          <button className="text-sm text-blue-600 hover:text-blue-800">
+          <button className="text-sm text-primary-500 hover:text-primary-600">
             Configurar →
           </button>
         </div>
@@ -143,6 +143,7 @@ export function Cadastro() {
               </button>
             </div>
             <ProfissionalForm
+              isOpen={showProfissionalForm}
               onSave={handleAposGravar}
               onCancel={() => setShowProfissionalForm(false)}
             />
@@ -166,6 +167,7 @@ export function Cadastro() {
               </button>
             </div>
             <PacienteForm
+              isOpen={showPacienteForm}
               onSave={handleAposGravar}
               onCancel={() => setShowPacienteForm(false)}
             />

@@ -92,7 +92,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
         <select
           value={profissionalId}
           onChange={(e) => setProfissionalId(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           required
         >
           <option value="">Selecione um profissional</option>
@@ -109,7 +109,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
         <select
           value={pacienteId}
           onChange={(e) => setPacienteId(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
         >
           <option value="">Selecione um paciente</option>
           {pacientes.map(pac => (
@@ -125,7 +125,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
         <select
           value={tipo}
           onChange={(e) => setTipo(e.target.value as Funcao)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           required
         >
           {Object.keys(CORES_FUNCAO).map(funcao => (
@@ -142,7 +142,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
           type="datetime-local"
           value={inicio.toISOString().slice(0, 16)}
           onChange={(e) => setInicio(new Date(e.target.value))}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           required
         />
       </div>
@@ -153,7 +153,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
           type="datetime-local"
           value={fim.toISOString().slice(0, 16)}
           onChange={(e) => setFim(new Date(e.target.value))}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           required
         />
       </div>
@@ -163,7 +163,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
         <textarea
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           rows={3}
         />
       </div>
@@ -187,7 +187,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
         )}
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+          className="px-4 py-2 text-sm font-medium text-white bg-primary-500 border border-transparent rounded-md hover:bg-primary-600"
         >
           Salvar
         </button>
@@ -205,7 +205,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
                 <textarea
                   value={motivoCancelamento}
                   onChange={(e) => setMotivoCancelamento(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                   rows={3}
                   required
                 />
@@ -218,7 +218,7 @@ export function AgendamentoForm({ atendimento, onSave, onCancel }: AgendamentoFo
                     id="cancelarFuturos"
                     checked={cancelarFuturos}
                     onChange={(e) => setCancelarFuturos(e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   <label htmlFor="cancelarFuturos" className="ml-2 block text-sm text-gray-900">
                     Cancelar também os próximos atendimentos deste paciente com este profissional

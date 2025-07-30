@@ -3,7 +3,8 @@ import { ptBR } from 'date-fns/locale';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { db } from '../db';
-import { Atendimento, Paciente, Profissional } from '../types';
+import { Atendimento, Paciente } from '../types';
+import { Logo } from './Logo';
 
 export function Sidebar() {
   const navigate = useNavigate();
@@ -16,26 +17,21 @@ export function Sidebar() {
   // Estados para dados reais
   const [eventosHoje, setEventosHoje] = useState<Atendimento[]>([]);
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
-  const [profissionais, setProfissionais] = useState<Profissional[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const carregarDados = async () => {
       const hoje = new Date();
       const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0, 0);
       const fimDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59, 999);
-      const [atendimentos, pacientesDB, profissionaisDB] = await Promise.all([
+      const [atendimentos, pacientesDB] = await Promise.all([
         db.atendimentos.toArray(),
-        db.pacientes.toArray(),
-        db.profissionais.toArray()
+        db.pacientes.toArray()
       ]);
       const doDia = atendimentos.filter(a =>
         a.inicio >= inicioDia && a.inicio <= fimDia && !a.cancelado
       );
       setEventosHoje(doDia);
       setPacientes(pacientesDB);
-      setProfissionais(profissionaisDB);
-      setLoading(false);
     };
     carregarDados();
   }, []);
@@ -51,7 +47,7 @@ export function Sidebar() {
       {/* Logo e descrição */}
       <div className="mb-8">
         <Link to="/" className="block">
-          <h1 className="text-2xl font-bold mb-1">📆 Routini</h1>
+          <Logo size="lg" className="mb-2" />
           <p className="text-xs text-gray-400">Gerencie escalas com eficiência</p>
         </Link>
       </div>
@@ -100,7 +96,7 @@ export function Sidebar() {
               onClick={() => irParaAgenda()}
               className={`p-1.5 text-sm rounded-full cursor-pointer transition-colors
                 ${dia.getDate() === hoje.getDate()
-                  ? 'bg-blue-600 text-white font-bold'
+                  ? 'bg-primary-500 text-white font-bold'
                   : 'hover:bg-gray-700'
                 }`}
             >
@@ -120,7 +116,7 @@ export function Sidebar() {
           {eventosHoje.map((atendimento) => (
             <div key={atendimento.id} className="group cursor-pointer" onClick={() => navigate('/')}> 
               <div className="flex items-center gap-2">
-                <span className="text-blue-300">
+                <span className="text-primary-300">
                   {atendimento.inicio instanceof Date
                     ? atendimento.inicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     : new Date(atendimento.inicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -141,7 +137,7 @@ export function Sidebar() {
           <input
             type="text"
             placeholder="Buscar atendimentos..."
-            className="w-full p-2 pl-8 rounded bg-gray-800 text-sm placeholder-gray-400 text-white border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            className="w-full p-2 pl-8 rounded bg-gray-800 text-sm placeholder-gray-400 text-white border border-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors"
           />
           <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
             🔍

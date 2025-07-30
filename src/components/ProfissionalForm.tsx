@@ -1,155 +1,236 @@
-import { useState } from 'react';
-import { Profissional, Funcao, CORES_FUNCAO } from '../types';
-import { db } from '../db';
+import { useState, useEffect } from 'react';
+import { Profissional, Funcao, Disponibilidade } from '../types';
+import { Dialog } from '@headlessui/react';
+import { useFormValidation } from '../hooks/useFormValidation';
+import { PROFISSIONAL_SCHEMA, sanitizeString } from '../utils/validation';
 
 interface ProfissionalFormProps {
   profissional?: Profissional;
-  onSave: () => void;
+  onSave: (profissional: Profissional) => void;
   onCancel: () => void;
+  isOpen: boolean;
 }
 
-export function ProfissionalForm({ profissional, onSave, onCancel }: ProfissionalFormProps) {
-  const [nome, setNome] = useState(profissional?.nome || '');
-  const [funcao, setFuncao] = useState<Funcao>(profissional?.funcao || 'Analista do Comportamento');
-  const [disponibilidade, setDisponibilidade] = useState<{ dia: number; turno: 'manhã' | 'tarde' | 'noite' }[]>(
-    profissional?.disponibilidade || []
-  );
+const FUNCOES: Funcao[] = [
+  'Analista do Comportamento',
+  'AT',
+  'Supervisor Clínico',
+  'Psicólogo Clínico',
+  'Terapeuta Ocupacional',
+  'Fonoaudiólogo',
+  'Educador Físico',
+  'Musicoterapeuta',
+  'Pedagogo',
+  'Nutricionista',
+  'Médico',
+  'Coordenador Clínico',
+  'Recepcionista',
+  'Estagiário'
+];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const novoProfissional: Omit<Profissional, 'id'> = {
-      nome,
-      funcao,
-      disponibilidade,
-      cor: CORES_FUNCAO[funcao]
-    };
+const DIAS_SEMANA = [
+  { valor: 0, nome: 'Domingo' },
+  { valor: 1, nome: 'Segunda' },
+  { valor: 2, nome: 'Terça' },
+  { valor: 3, nome: 'Quarta' },
+  { valor: 4, nome: 'Quinta' },
+  { valor: 5, nome: 'Sexta' },
+  { valor: 6, nome: 'Sábado' }
+];
 
-    try {
-      if (profissional) {
-        await db.profissionais.update(profissional.id, novoProfissional);
-      } else {
-        await db.profissionais.add({
-          ...novoProfissional,
-          id: crypto.randomUUID()
-        });
-      }
-      onSave();
-    } catch (error) {
-      console.error('Erro ao salvar profissional:', error);
+const TURNOS = ['manhã', 'tarde', 'noite'];
+
+export function ProfissionalForm({ profissional, onSave, onCancel, isOpen }: ProfissionalFormProps) {
+  const [disponibilidade, setDisponibilidade] = useState<Disponibilidade[]>([]);
+
+  const initialData = {
+    nome: profissional?.nome || '',
+    funcao: profissional?.funcao || 'AT' as Funcao,
+    cor: profissional?.cor || '#3B82F6'
+  };
+
+  const { 
+    data, 
+    isValid, 
+    isSubmitting, 
+    updateField, 
+    handleSubmit, 
+    getFieldErrors, 
+    hasFieldError 
+  } = useFormValidation({
+    initialData,
+    schema: PROFISSIONAL_SCHEMA,
+    onSubmit: async (formData) => {
+      const profissionalData: Profissional = {
+        id: profissional?.id || crypto.randomUUID(),
+        nome: sanitizeString(formData.nome),
+        funcao: formData.funcao,
+        disponibilidade,
+        cor: formData.cor
+      };
+      
+      onSave(profissionalData);
     }
+  });
+
+  useEffect(() => {
+    if (profissional) {
+      setDisponibilidade(profissional.disponibilidade);
+    }
+  }, [profissional]);
+
+  const adicionarDisponibilidade = () => {
+    setDisponibilidade([...disponibilidade, { dia: 1, turno: 'manhã' }]);
   };
 
-  const handleAddDisponibilidade = () => {
-    setDisponibilidade([...disponibilidade, { dia: 0, turno: 'manhã' }]);
-  };
-
-  const handleRemoveDisponibilidade = (index: number) => {
+  const removerDisponibilidade = (index: number) => {
     setDisponibilidade(disponibilidade.filter((_, i) => i !== index));
   };
 
-  const handleDisponibilidadeChange = (index: number, field: 'dia' | 'turno', value: number | 'manhã' | 'tarde' | 'noite') => {
-    const newDisponibilidade = [...disponibilidade];
-    newDisponibilidade[index] = { ...newDisponibilidade[index], [field]: value };
-    setDisponibilidade(newDisponibilidade);
+  const atualizarDisponibilidade = (index: number, campo: keyof Disponibilidade, valor: number | string) => {
+    const novaDisponibilidade = [...disponibilidade];
+    novaDisponibilidade[index] = { ...novaDisponibilidade[index], [campo]: valor };
+    setDisponibilidade(novaDisponibilidade);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="nome" className="block text-sm font-medium text-gray-700">
-          Nome
-        </label>
-        <input
-          type="text"
-          id="nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-          required
-        />
-      </div>
+    <Dialog open={isOpen} onClose={onCancel} className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="fixed inset-0 bg-black bg-opacity-30" />
+        
+        <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+          <div className="p-6">
+            <Dialog.Title className="text-lg font-semibold text-gray-900 mb-4">
+              {profissional ? 'Editar Profissional' : 'Novo Profissional'}
+            </Dialog.Title>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Nome */}
+              <div>
+                <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  id="nome"
+                  value={data.nome}
+                  onChange={(e) => updateField('nome', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                    hasFieldError('nome') ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Nome completo"
+                />
+                {getFieldErrors('nome').map((error, index) => (
+                  <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                ))}
+              </div>
 
-      <div>
-        <label htmlFor="funcao" className="block text-sm font-medium text-gray-700">
-          Função
-        </label>
-        <select
-          id="funcao"
-          value={funcao}
-          onChange={(e) => setFuncao(e.target.value as Funcao)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-          required
-        >
-          {Object.keys(CORES_FUNCAO).map((f) => (
-            <option key={f} value={f}>
-              {f}
-            </option>
-          ))}
-        </select>
-      </div>
+              {/* Função */}
+              <div>
+                <label htmlFor="funcao" className="block text-sm font-medium text-gray-700 mb-1">
+                  Função *
+                </label>
+                <select
+                  id="funcao"
+                  value={data.funcao}
+                  onChange={(e) => updateField('funcao', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                    hasFieldError('funcao') ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  {FUNCOES.map(funcao => (
+                    <option key={funcao} value={funcao}>{funcao}</option>
+                  ))}
+                </select>
+                {getFieldErrors('funcao').map((error, index) => (
+                  <p key={index} className="text-red-500 text-sm mt-1">{error}</p>
+                ))}
+              </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Disponibilidade</label>
-        <div className="mt-2 space-y-2">
-          {disponibilidade.map((disp, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <select
-                value={disp.dia}
-                onChange={(e) => handleDisponibilidadeChange(index, 'dia', parseInt(e.target.value))}
-                className="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-              >
-                <option value={0}>Domingo</option>
-                <option value={1}>Segunda</option>
-                <option value={2}>Terça</option>
-                <option value={3}>Quarta</option>
-                <option value={4}>Quinta</option>
-                <option value={5}>Sexta</option>
-                <option value={6}>Sábado</option>
-              </select>
-              <select
-                value={disp.turno}
-                onChange={(e) => handleDisponibilidadeChange(index, 'turno', e.target.value as 'manhã' | 'tarde' | 'noite')}
-                className="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-              >
-                <option value="manhã">Manhã</option>
-                <option value="tarde">Tarde</option>
-                <option value="noite">Noite</option>
-              </select>
-              <button
-                type="button"
-                onClick={() => handleRemoveDisponibilidade(index)}
-                className="text-red-600 hover:text-red-800"
-              >
-                Remover
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddDisponibilidade}
-            className="text-primary-600 hover:text-primary-800"
-          >
-            Adicionar disponibilidade
-          </button>
+              {/* Cor */}
+              <div>
+                <label htmlFor="cor" className="block text-sm font-medium text-gray-700 mb-1">
+                  Cor
+                </label>
+                <input
+                  type="color"
+                  id="cor"
+                  value={data.cor}
+                  onChange={(e) => updateField('cor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              {/* Disponibilidade */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Disponibilidade
+                </label>
+                <div className="space-y-2">
+                  {disponibilidade.map((disp, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <select
+                        value={disp.dia}
+                        onChange={(e) => atualizarDisponibilidade(index, 'dia', parseInt(e.target.value))}
+                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        {DIAS_SEMANA.map(dia => (
+                          <option key={dia.valor} value={dia.valor}>{dia.nome}</option>
+                        ))}
+                      </select>
+                      
+                      <select
+                        value={disp.turno}
+                        onChange={(e) => atualizarDisponibilidade(index, 'turno', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        {TURNOS.map(turno => (
+                          <option key={turno} value={turno}>{turno}</option>
+                        ))}
+                      </select>
+                      
+                      <button
+                        type="button"
+                        onClick={() => removerDisponibilidade(index)}
+                        className="px-3 py-2 text-red-600 hover:text-red-800"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <button
+                    type="button"
+                    onClick={adicionarDisponibilidade}
+                    className="px-4 py-2 text-primary-500 hover:text-primary-600 border border-primary-300 rounded-md"
+                  >
+                    + Adicionar Disponibilidade
+                  </button>
+                </div>
+              </div>
+
+              {/* Botões */}
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md"
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isValid || isSubmitting}
+                  className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-
-      <div className="flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-        >
-          Salvar
-        </button>
-      </div>
-    </form>
+    </Dialog>
   );
 } 

@@ -1,119 +1,97 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Profissional, Paciente, Atendimento } from '../types';
 import { db } from '../db';
-import { CountUp } from 'countup.js';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ProfissionalForm } from './ProfissionalForm';
-import { PacienteForm } from './PacienteForm';
 import { MiniCalendar } from './MiniCalendar';
 import { ProximosAtendimentos } from './ProximosAtendimentos';
 import { AgendamentoForm } from './AgendamentoForm';
 import { Dialog } from '@headlessui/react';
-import { useNavigate } from 'react-router-dom';
+import { ProfissionalForm } from './ProfissionalForm';
+import { PacienteForm } from './PacienteForm';
+import { 
+  LoadingSpinner, 
+  CardSkeleton, 
+  ListSkeleton,
+  LoadingOverlay 
+} from './LoadingStates';
+import { 
+  useNotifications, 
+  ToastContainer
+} from './FeedbackVisual';
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { notifications, addNotification, removeNotification } = useNotifications();
+  
+  // Estados para dados
   const [profissionais, setProfissionais] = useState<Profissional[]>([]);
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
+  
+  // Estados de loading
   const [loading, setLoading] = useState(true);
+  
+  // Estados para modais
   const [showProfissionalForm, setShowProfissionalForm] = useState(false);
   const [showPacienteForm, setShowPacienteForm] = useState(false);
-  const [profissionalSelecionado, setProfissionalSelecionado] = useState<Profissional | undefined>();
-  const [pacienteSelecionado, setPacienteSelecionado] = useState<Paciente | undefined>();
-  const [activeTab, setActiveTab] = useState<'overview' | 'profissionais' | 'pacientes'>('overview');
-  const pacientesRef = useRef<HTMLParagraphElement>(null);
-  const profissionaisRef = useRef<HTMLParagraphElement>(null);
-  const atendimentosRef = useRef<HTMLParagraphElement>(null);
-  
-  // Estado para o modal de atendimento
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [profissionalSelecionado, setProfissionalSelecionado] = useState<Profissional | undefined>(undefined);
+  const [pacienteSelecionado, setPacienteSelecionado] = useState<Paciente | undefined>(undefined);
   const [selectedAtendimento, setSelectedAtendimento] = useState<Atendimento | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      const pacientesCountUp = new CountUp(pacientesRef.current!, pacientes.length);
-      const profissionaisCountUp = new CountUp(profissionaisRef.current!, profissionais.length);
-      const atendimentosMes = atendimentos.filter(a => {
-        const hoje = new Date();
-        return a.inicio.getMonth() === hoje.getMonth() && a.inicio.getFullYear() === hoje.getFullYear();
-      }).length;
-      const atendimentosCountUp = new CountUp(atendimentosRef.current!, atendimentosMes);
-
-      pacientesCountUp.start();
-      profissionaisCountUp.start();
-      atendimentosCountUp.start();
-    }
-  }, [loading, pacientes.length, profissionais.length, atendimentos]);
-
   const loadData = async () => {
-    setLoading(true);
     try {
-      const [atendimentosDB, profissionaisDB, pacientesDB] = await Promise.all([
-        db.atendimentos.toArray(),
-        db.profissionais.toArray(),
-        db.pacientes.toArray()
-      ]);
+      setLoading(true);
       
-      setAtendimentos(atendimentosDB);
-      setProfissionais(profissionaisDB);
-      setPacientes(pacientesDB);
+      // Carregar dados em paralelo
+      await Promise.all([
+        db.profissionais.toArray().then(data => {
+          setProfissionais(data);
+        }),
+        db.pacientes.toArray().then(data => {
+          setPacientes(data);
+        }),
+        db.atendimentos.toArray().then(data => {
+          setAtendimentos(data);
+        })
+      ]);
+
+      addNotification({
+        type: 'success',
+        title: 'Dados carregados',
+        message: 'Dashboard atualizado com sucesso',
+        duration: 3000
+      });
+
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      addNotification({
+        type: 'error',
+        title: 'Erro ao carregar dados',
+        message: 'Não foi possível carregar os dados do dashboard',
+        duration: 5000
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Função para navegar para a agenda em uma data específica
-  const handleSelectDate = (date: Date) => {
-    navigate('/', { state: { selectedDate: date.toISOString() } });
+  const handleSelectDate = () => {
+    navigate('/');
   };
-  
-  // Função para abrir o modal de atendimento
-  const handleViewAppointment = (atendimento: Atendimento) => {
-    setSelectedAtendimento(atendimento);
-    setSelectedDate(atendimento.inicio);
-    setModalOpen(true);
-  };
-  
-  // Função para quando um atendimento é salvo no modal
+
   const handleSaveAppointment = () => {
-    loadData(); // Recarregar os dados
+    loadData();
     setModalOpen(false);
-    setSelectedAtendimento(null);
-  };
-
-  const getAtendimentosPorProfissional = () => {
-    const data = profissionais.map(prof => {
-      const atendimentosDoProf = atendimentos.filter(a => a.profissionalId === prof.id);
-      return {
-        nome: prof.nome,
-        quantidade: atendimentosDoProf.length
-      };
+    addNotification({
+      type: 'success',
+      title: 'Atendimento salvo',
+      message: 'O agendamento foi salvo com sucesso',
+      duration: 3000
     });
-    return data;
   };
 
-  const getUltimosAtendimentos = () => {
-    return atendimentos
-      .sort((a, b) => b.inicio.getTime() - a.inicio.getTime())
-      .slice(0, 5)
-      .map(atendimento => {
-        const profissional = profissionais.find(p => p.id === atendimento.profissionalId);
-        const paciente = pacientes.find(p => p.id === atendimento.pacienteId);
-        return {
-          ...atendimento,
-          profissionalNome: profissional?.nome || 'Não encontrado',
-          pacienteNome: paciente?.nome || 'Não encontrado'
-        };
-      });
-  };
+
 
   const handleEditarProfissional = (profissional: Profissional) => {
     setProfissionalSelecionado(profissional);
@@ -121,25 +99,24 @@ export function Dashboard() {
   };
 
   const handleExcluirProfissional = async (id: string) => {
-    // Verificar se o profissional tem atendimentos
-    const atendimentosDoProfissional = atendimentos.filter(a => a.profissionalId === id);
-    
-    if (atendimentosDoProfissional.length > 0) {
-      if (!window.confirm(`Este profissional possui ${atendimentosDoProfissional.length} atendimentos registrados. Excluir mesmo assim?`)) {
-        return;
-      }
-      // Excluir os atendimentos relacionados
-      for (const atendimento of atendimentosDoProfissional) {
-        await db.atendimentos.delete(atendimento.id);
-      }
-    } else {
-      if (!window.confirm('Tem certeza que deseja excluir este profissional?')) {
-        return;
-      }
+    try {
+      await db.profissionais.delete(id);
+      setProfissionais(profissionais.filter(p => p.id !== id));
+      addNotification({
+        type: 'success',
+        title: 'Profissional excluído',
+        message: 'O profissional foi removido com sucesso',
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Erro ao excluir profissional:', error);
+      addNotification({
+        type: 'error',
+        title: 'Erro ao excluir',
+        message: 'Não foi possível excluir o profissional',
+        duration: 5000
+      });
     }
-    
-    await db.profissionais.delete(id);
-    loadData();
   };
 
   const handleEditarPaciente = (paciente: Paciente) => {
@@ -148,355 +125,316 @@ export function Dashboard() {
   };
 
   const handleExcluirPaciente = async (id: string) => {
-    // Verificar se o paciente tem atendimentos
-    const atendimentosDoPaciente = atendimentos.filter(a => a.pacienteId === id);
-    
-    if (atendimentosDoPaciente.length > 0) {
-      if (!window.confirm(`Este paciente possui ${atendimentosDoPaciente.length} atendimentos registrados. Excluir mesmo assim?`)) {
-        return;
-      }
-      // Excluir os atendimentos relacionados
-      for (const atendimento of atendimentosDoPaciente) {
-        await db.atendimentos.delete(atendimento.id);
-      }
-    } else {
-      if (!window.confirm('Tem certeza que deseja excluir este paciente?')) {
-        return;
-      }
+    try {
+      await db.pacientes.delete(id);
+      setPacientes(pacientes.filter(p => p.id !== id));
+      addNotification({
+        type: 'success',
+        title: 'Paciente excluído',
+        message: 'O paciente foi removido com sucesso',
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Erro ao excluir paciente:', error);
+      addNotification({
+        type: 'error',
+        title: 'Erro ao excluir',
+        message: 'Não foi possível excluir o paciente',
+        duration: 5000
+      });
     }
-    
-    await db.pacientes.delete(id);
-    loadData();
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">Visão geral do sistema</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-gray-700">Próximos Atendimentos</h2>
+            <ListSkeleton items={3} />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-gray-700">Mini Calendário</h2>
+            <div className="bg-white rounded-lg shadow-sm p-4">
+              <LoadingSpinner size="md" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="space-x-4">
-          <button
-            onClick={() => {
-              setProfissionalSelecionado(undefined);
-              setShowProfissionalForm(true);
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Novo Profissional
-          </button>
-          <button
-            onClick={() => {
-              setPacienteSelecionado(undefined);
-              setShowPacienteForm(true);
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Novo Paciente
-          </button>
+      {/* Toast Container */}
+      <ToastContainer 
+        notifications={notifications} 
+        onClose={removeNotification}
+        position="top-right"
+      />
+
+      {/* Loading Overlay para operações */}
+      <LoadingOverlay 
+        isVisible={false}
+        text="Processando..."
+      />
+
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600">Visão geral do sistema</p>
+      </div>
+
+      {/* Cards de Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Profissionais</p>
+              <p className="text-2xl font-semibold text-gray-900">{profissionais.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Pacientes</p>
+              <p className="text-2xl font-semibold text-gray-900">{pacientes.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Atendimentos</p>
+              <p className="text-2xl font-semibold text-gray-900">{atendimentos.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-yellow-100 rounded-lg">
+              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Hoje</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {atendimentos.filter(a => {
+                  const hoje = new Date();
+                  const dataAtendimento = new Date(a.inicio);
+                  return dataAtendimento.toDateString() === hoje.toDateString();
+                }).length}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Abas de navegação */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 font-medium text-sm border-b-2 ${
-              activeTab === 'overview'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Visão Geral
-          </button>
-          <button
-            onClick={() => setActiveTab('profissionais')}
-            className={`px-4 py-2 font-medium text-sm border-b-2 ${
-              activeTab === 'profissionais'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Profissionais
-          </button>
-          <button
-            onClick={() => setActiveTab('pacientes')}
-            className={`px-4 py-2 font-medium text-sm border-b-2 ${
-              activeTab === 'pacientes'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Pacientes
-          </button>
-        </nav>
-      </div>
-
-      {activeTab === 'overview' && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-700">Total de Pacientes</h3>
-              <p ref={pacientesRef} className="text-3xl font-bold text-blue-600">0</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-700">Total de Profissionais</h3>
-              <p ref={profissionaisRef} className="text-3xl font-bold text-blue-600">0</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-700">Atendimentos do Mês</h3>
-              <p ref={atendimentosRef} className="text-3xl font-bold text-blue-600">0</p>
-            </div>
+      {/* Seção Principal */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Próximos Atendimentos */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-700">Próximos Atendimentos</h2>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="text-sm bg-primary-500 text-white px-3 py-1 rounded-md hover:bg-primary-600 transition-colors"
+            >
+              Novo
+            </button>
           </div>
-
-          <div className="bg-white p-6 rounded-lg shadow mb-8">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Atendimentos por Profissional</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={getAtendimentosPorProfissional()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nome" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="quantidade" fill="#0ea5e9" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          
-          {/* Nova seção para calendário e próximos atendimentos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">Calendário</h2>
-              <MiniCalendar
-                onSelectDate={handleSelectDate}
-                selectedDate={selectedDate}
-              />
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <h2 className="text-lg font-semibold text-gray-700 mb-4">Próximos Atendimentos</h2>
-              <ProximosAtendimentos
-                atendimentos={atendimentos}
-                profissionais={profissionais}
-                pacientes={pacientes}
-                selectedDate={selectedDate}
-                onViewAppointment={handleViewAppointment}
-              />
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Últimos Atendimentos</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profissional</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {getUltimosAtendimentos().map(atendimento => (
-                    <tr key={atendimento.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {atendimento.inicio.toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {atendimento.profissionalNome}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {atendimento.pacienteNome}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {atendimento.tipo}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'profissionais' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Lista de Profissionais</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Função</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disponibilidade</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {profissionais.map(profissional => (
-                  <tr key={profissional.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {profissional.nome}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {profissional.funcao}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {profissional.disponibilidade.map(d => (
-                        <span key={`${d.dia}-${d.turno}`} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
-                          {d.dia === 1 ? 'Seg' : d.dia === 2 ? 'Ter' : d.dia === 3 ? 'Qua' : d.dia === 4 ? 'Qui' : d.dia === 5 ? 'Sex' : d.dia === 6 ? 'Sáb' : 'Dom'} - {d.turno}
-                        </span>
-                      ))}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        onClick={() => handleEditarProfissional(profissional)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => handleExcluirProfissional(profissional.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Excluir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ProximosAtendimentos
+            limit={5}
+            showDate={true}
+          />
         </div>
-      )}
 
-      {activeTab === 'pacientes' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Lista de Pacientes</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Nascimento</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnóstico</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {pacientes.map(paciente => (
-                  <tr key={paciente.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {paciente.nome}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {paciente.dataNascimento.toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {paciente.responsavel.nome}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {paciente.diagnostico || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        onClick={() => handleEditarPaciente(paciente)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => handleExcluirPaciente(paciente.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Excluir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {showProfissionalForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-          <div className="relative p-8 bg-white rounded-lg shadow-xl max-w-lg w-full">
-            <div className="absolute top-0 right-0 p-4">
-              <button
-                onClick={() => {
-                  setShowProfissionalForm(false);
-                  setProfissionalSelecionado(undefined);
-                }}
-                className="text-gray-400 hover:text-gray-500"
-              >
-                <span className="sr-only">Fechar</span>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <ProfissionalForm
-              profissional={profissionalSelecionado}
-              onSave={() => {
-                setShowProfissionalForm(false);
-                setProfissionalSelecionado(undefined);
-                loadData();
-              }}
-              onCancel={() => {
-                setShowProfissionalForm(false);
-                setProfissionalSelecionado(undefined);
-              }}
+        {/* Mini Calendário */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-700">Mini Calendário</h2>
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <MiniCalendar
+              onSelectDate={handleSelectDate}
             />
           </div>
         </div>
+      </div>
+
+      {/* Seção de Gerenciamento */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Profissionais */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Profissionais</h3>
+            <button
+              onClick={() => setShowProfissionalForm(true)}
+              className="text-sm bg-primary-500 text-white px-3 py-1 rounded-md hover:bg-primary-600 transition-colors"
+            >
+              Adicionar
+            </button>
+          </div>
+          
+          {loading ? (
+            <ListSkeleton items={3} />
+          ) : (
+            <div className="space-y-3">
+              {profissionais.slice(0, 3).map(profissional => (
+                <div key={profissional.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold"
+                      style={{ backgroundColor: profissional.cor }}
+                    >
+                      {profissional.nome.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{profissional.nome}</p>
+                      <p className="text-sm text-gray-500">{profissional.funcao}</p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditarProfissional(profissional)}
+                      className="text-primary-500 hover:text-primary-600 text-sm"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleExcluirProfissional(profissional.id)}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {profissionais.length > 3 && (
+                <button className="text-primary-500 hover:text-primary-600 text-sm">
+                  Ver todos ({profissionais.length})
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Pacientes */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Pacientes</h3>
+            <button
+              onClick={() => setShowPacienteForm(true)}
+              className="text-sm bg-primary-500 text-white px-3 py-1 rounded-md hover:bg-primary-600 transition-colors"
+            >
+              Adicionar
+            </button>
+          </div>
+          
+          {loading ? (
+            <ListSkeleton items={3} />
+          ) : (
+            <div className="space-y-3">
+              {pacientes.slice(0, 3).map(paciente => (
+                <div key={paciente.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      {paciente.nome.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{paciente.nome}</p>
+                      <p className="text-sm text-gray-500">{paciente.responsavel.nome}</p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditarPaciente(paciente)}
+                      className="text-primary-500 hover:text-primary-600 text-sm"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleExcluirPaciente(paciente.id)}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {pacientes.length > 3 && (
+                <button className="text-primary-500 hover:text-primary-600 text-sm">
+                  Ver todos ({pacientes.length})
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Modais */}
+      {showProfissionalForm && (
+        <ProfissionalForm
+          profissional={profissionalSelecionado}
+          isOpen={showProfissionalForm}
+          onSave={() => {
+            setShowProfissionalForm(false);
+            setProfissionalSelecionado(undefined);
+            loadData();
+          }}
+          onCancel={() => {
+            setShowProfissionalForm(false);
+            setProfissionalSelecionado(undefined);
+          }}
+        />
       )}
 
       {showPacienteForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-          <div className="relative p-8 bg-white rounded-lg shadow-xl max-w-lg w-full">
-            <div className="absolute top-0 right-0 p-4">
-              <button
-                onClick={() => {
-                  setShowPacienteForm(false);
-                  setPacienteSelecionado(undefined);
-                }}
-                className="text-gray-400 hover:text-gray-500"
-              >
-                <span className="sr-only">Fechar</span>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <PacienteForm
-              paciente={pacienteSelecionado}
-              onSave={() => {
-                setShowPacienteForm(false);
-                setPacienteSelecionado(undefined);
-                loadData();
-              }}
-              onCancel={() => {
-                setShowPacienteForm(false);
-                setPacienteSelecionado(undefined);
-              }}
-            />
-          </div>
-        </div>
+        <PacienteForm
+          paciente={pacienteSelecionado}
+          isOpen={showPacienteForm}
+          onSave={() => {
+            setShowPacienteForm(false);
+            setPacienteSelecionado(undefined);
+            loadData();
+          }}
+          onCancel={() => {
+            setShowPacienteForm(false);
+            setPacienteSelecionado(undefined);
+          }}
+        />
       )}
       
       {/* Modal de visualização de atendimento */}

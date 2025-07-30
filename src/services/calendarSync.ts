@@ -2,8 +2,26 @@ import { Atendimento } from '../types';
 
 declare global {
   interface Window {
-    gapi: any;
-    google: any;
+    gapi: {
+      load: (api: string, callback: () => void) => void;
+      client: {
+        init: (config: { apiKey: string; discoveryDocs: string[] }) => Promise<void>;
+        calendar: {
+          events: {
+            insert: (params: { calendarId: string; resource: { summary: string; description?: string; start: { dateTime: string }; end: { dateTime: string } } }) => Promise<{ result: { id: string; summary: string } }>;
+          };
+        };
+      };
+    };
+    google: {
+      accounts: {
+        oauth2: {
+          initTokenClient: (config: { client_id: string; scope: string; callback: (response: { error?: string }) => void }) => {
+            requestAccessToken: () => void;
+          };
+        };
+      };
+    };
   }
 }
 
@@ -25,7 +43,7 @@ export async function initializeGoogleCalendar() {
       window.google.accounts.oauth2.initTokenClient({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         scope: 'https://www.googleapis.com/auth/calendar',
-        callback: (response: any) => {
+        callback: (response: { error?: string }) => {
           if (response.error) {
             throw new Error(response.error);
           }
@@ -43,10 +61,10 @@ export async function syncWithGoogleCalendar(atendimento: Atendimento) {
     const tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       scope: 'https://www.googleapis.com/auth/calendar',
-      callback: async (response: any) => {
-        if (response.error) {
-          throw new Error(response.error);
-        }
+              callback: async (response: { error?: string }) => {
+          if (response.error) {
+            throw new Error(response.error);
+          }
 
         try {
           const response = await window.gapi.client.calendar.events.insert({

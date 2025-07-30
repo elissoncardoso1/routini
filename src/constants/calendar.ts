@@ -2,9 +2,9 @@ import { Funcao } from '../types';
 
 export const CORES_FUNCAO: Record<Funcao, { bg: string; border: string; text: string; icon: string }> = {
   'Psicólogo Clínico': {
-    bg: '#e0f2fe',
-    border: '#0284c7',
-    text: '#0c4a6e',
+    bg: '#f3e8ff',
+    border: '#9333ea',
+    text: '#581c87',
     icon: '🩺'
   },
   'Fonoaudiólogo': {
@@ -26,9 +26,9 @@ export const CORES_FUNCAO: Record<Funcao, { bg: string; border: string; text: st
     icon: '🎯'
   },
   'AT': {
-    bg: '#f3e8ff',
-    border: '#9333ea',
-    text: '#581c87',
+    bg: '#ede9fe',
+    border: '#8b5cf6',
+    text: '#5b21b6',
     icon: '👥'
   },
   'Supervisor Clínico': {

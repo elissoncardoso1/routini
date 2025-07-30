@@ -6,6 +6,10 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    --primary: 271 81% 55%;
+    --primary-hover: 271 81% 45%;
+    --primary-light: 271 81% 85%;
+    --text-primary: 215 25% 27%;
   }
 
   .dark {
@@ -16,7 +20,7 @@
 
 @layer base {
   body {
-    @apply bg-white text-gray-900;
+    @apply bg-background text-text;
   }
 }
 
@@ -61,11 +65,11 @@
 }
 
 .fc .fc-button-primary {
-  @apply bg-primary-600 text-white border-transparent hover:bg-primary-700;
+  @apply bg-primary-500 text-white border-transparent hover:bg-primary-600;
 }
 
 .fc .fc-button-active {
-  @apply bg-primary-700;
+  @apply bg-primary-600;
 }
 
 .fc .fc-timegrid-axis {
@@ -82,4 +86,44 @@
 
 .fc .fc-timegrid-now-indicator-arrow {
   @apply border-red-500;
+}
+
+/* Novos estilos para o calendário com cores roxas */
+.fc .fc-day-today {
+  @apply bg-purple-100;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  @apply text-purple-600 font-semibold;
+}
+
+.fc .fc-highlight {
+  @apply bg-purple-600 text-white;
+}
+
+.fc .fc-day:hover {
+  @apply bg-purple-50;
+}
+
+/* Estilos para botões primários */
+.btn-primary {
+  @apply bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors duration-200;
+}
+
+.btn-primary:hover {
+  @apply bg-primary-600;
+}
+
+/* Estilos para cards */
+.card {
+  @apply bg-white border border-primary-200 text-text rounded-lg p-4 shadow-sm;
+}
+
+/* Estilos para ícones ativos */
+.icon-active {
+  @apply text-primary-500;
+}
+
+.icon-active:hover {
+  @apply text-primary-600;
 }

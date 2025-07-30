@@ -102,7 +102,13 @@ export class EscalaDatabase extends Dexie {
   }
 
   // Importa dados de um arquivo de backup
-  async importData(data: any) {
+  async importData(data: {
+    version?: number;
+    profissionais?: Profissional[];
+    atendimentos?: Atendimento[];
+    pacientes?: Paciente[];
+    tags?: Tag[];
+  }) {
     try {
       // Verificar versão para garantir compatibilidade
       if (!data.version || data.version > 2) {
@@ -122,15 +128,15 @@ export class EscalaDatabase extends Dexie {
           ]);
           
           // Converter strings ISO para objetos Date nas datas
-          const processedAtendimentos = data.atendimentos.map((atendimento: any) => ({
+          const processedAtendimentos = (data.atendimentos || []).map((atendimento: any) => ({
             ...atendimento,
             inicio: new Date(atendimento.inicio),
             fim: new Date(atendimento.fim)
           }));
           
-          const processedPacientes = data.pacientes.map((paciente: any) => ({
+          const processedPacientes = (data.pacientes || []).map((paciente: any) => ({
             ...paciente,
-            dataNascimento: paciente.dataNascimento ? new Date(paciente.dataNascimento) : undefined
+            dataNascimento: paciente.dataNascimento ? new Date(paciente.dataNascimento) : new Date()
           }));
 
           // Importar dados

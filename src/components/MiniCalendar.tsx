@@ -88,24 +88,23 @@ export function MiniCalendar({ onSelectDate, selectedDate: propSelectedDate }: M
           <div key={`empty-${i}`} />
         ))}
         {diasDoMes.map((dia) => {
-          const dataAtual = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), Number(dia));
-          const isHoje = isSameDay(dataAtual, new Date());
-          const isSelecionado = isSameDay(dataAtual, selectedDate);
-          const temAtendimentos = temAtendimento(dataAtual);
+          const isHoje = isSameDay(dia, new Date());
+          const isSelecionado = isSameDay(dia, selectedDate);
+          const temAtendimentos = temAtendimento(dia);
           
           return (
             <button
-              key={`dia-${dia}`}
-              onClick={() => handleSelectDate(dataAtual)}
+              key={`dia-${dia.getTime()}`}
+              onClick={() => handleSelectDate(dia)}
               className={`
                 w-8 h-8 rounded-full text-sm flex items-center justify-center
-                ${isHoje ? 'bg-blue-100 text-blue-600' : ''}
-                ${isSelecionado ? 'bg-blue-500 text-white' : ''}
+                ${isHoje ? 'bg-purple-100 text-purple-600' : ''}
+                ${isSelecionado ? 'bg-primary-500 text-white' : ''}
                 ${temAtendimentos ? 'font-bold' : ''}
                 hover:bg-gray-100
               `}
             >
-              {Number(dia)}
+              {dia.getDate()}
             </button>
           );
         })}
