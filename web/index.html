@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sistema de gerenciamento de escalas e agendamentos - Routini" />
+    <meta name="theme-color" content="#3b82f6" />
+    <link rel="manifest" href="./manifest.json" />
+    <title>Routini - Gerenciamento de Escalas</title>
+    <link rel="stylesheet" crossorigin href="./assets/index-D2CgPU_D.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" crossorigin src="./assets/index-B_AN0Jja.js"></script>
+    <script>
+        // Registrar service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registrado');
+                    })
+                    .catch((error) => {
+                        console.log('❌ Service Worker falhou:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
