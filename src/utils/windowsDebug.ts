@@ -241,7 +241,17 @@ export class WindowsDebugger {
   generateReport(): {
     isWindows: boolean;
     devicePixelRatio: number;
-    screenInfo: typeof this.screenInfo;
+    screenInfo: {
+      width: number;
+      height: number;
+      availWidth: number;
+      availHeight: number;
+      devicePixelRatio: number;
+      innerWidth: number;
+      innerHeight: number;
+      clientWidth: number;
+      clientHeight: number;
+    };
     dpiIssues: string[];
     renderingIssues: string[];
     userAgent: string;

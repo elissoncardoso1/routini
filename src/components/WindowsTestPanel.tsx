@@ -84,7 +84,7 @@ export function WindowsTestPanel() {
       rootExists: !!root,
       rootDimensions: root ? `${root.offsetWidth}x${root.offsetHeight}` : 'N/A',
       calendarExists: !!calendar,
-      calendarDimensions: calendar ? `${calendar.offsetWidth}x${calendar.offsetHeight}` : 'N/A'
+      calendarDimensions: calendar ? `${(calendar as HTMLElement).offsetWidth}x${(calendar as HTMLElement).offsetHeight}` : 'N/A'
     };
 
     // Teste 3: Verificar CSS

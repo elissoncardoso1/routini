@@ -15,7 +15,7 @@ export function DashboardDebug({ children }: DashboardDebugProps) {
         console.log('🔍 Verificando Dashboard...');
         
         // Verificar se Dexie está disponível
-        if (typeof window !== 'undefined' && (window as Record<string, unknown>).Dexie) {
+        if (typeof window !== 'undefined' && (window as any).Dexie) {
           console.log('✅ Dexie disponível');
         } else {
           console.log('⚠️ Dexie não encontrado');

@@ -1,5 +1,10 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import fs from 'fs';
+// Informações do aplicativo
+var APP_NAME = 'Routini';
+var APP_VERSION = process.env.npm_package_version || '0.1.3-pwa';
+var APP_REPOSITORY = 'https://github.com/elissoncardoso1/routini';
 function createWindow() {
     var win = new BrowserWindow({
         width: 1200,
@@ -22,7 +27,6 @@ function createWindow() {
         var indexPath = path.join(__dirname, '../dist/index.html');
         console.log('Carregando arquivo:', indexPath);
         // Verificar se o arquivo existe
-        var fs = require('fs');
         if (fs.existsSync(indexPath)) {
             console.log('✅ Arquivo index.html encontrado');
             // Usar protocolo file:// para melhor compatibilidade
