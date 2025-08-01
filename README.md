@@ -174,7 +174,7 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ## 👨‍💻 Autor
 
-**Elisson Coimbra**
+**Elisson Cardoso**
 - GitHub: [@elissoncardoso1](https://github.com/elissoncardoso1)
 - Email: elissoncardoso1@gmail.com
 

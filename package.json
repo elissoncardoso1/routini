@@ -4,7 +4,7 @@
   "version": "0.1.2",
   "main": "dist-electron/electron.js",
   "description": "Sistema de agendamento e gerenciamento de consultas - Routini",
-  "author": "Elisson Coimbra",
+  "author": "Elisson Cardoso",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && tsc src/electron.ts --outDir dist-electron --esModuleInterop",
