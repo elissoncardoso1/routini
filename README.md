@@ -1,7 +1,7 @@
 # 🗓️ Routini - Sistema de Agendamento e Gerenciamento de Escalas
 
-[![Version](https://img.shields.io/badge/version-0.1.0--alpha.1-purple.svg)](https://github.com/elissoncoimbra/routini/releases)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey.svg)](https://github.com/elissoncoimbra/routini/releases)
+[![Version](https://img.shields.io/badge/version-0.1.3-pwa-purple.svg)](https://github.com/elissoncardoso1/routini/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey.svg)](https://github.com/elissoncardoso1/routini/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 > **Routini** é um sistema completo de agendamento e gerenciamento de escalas desenvolvido com React, TypeScript e Electron. Ideal para clínicas, consultórios e profissionais que precisam organizar suas agendas de forma eficiente.
@@ -104,7 +104,7 @@
 ### Configuração do Ambiente
 ```bash
 # Clone o repositório
-git clone https://github.com/elissoncoimbra/routini.git
+git clone https://github.com/elissoncardoso1/routini.git
 cd routini
 
 # Instale as dependências

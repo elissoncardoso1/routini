@@ -18,7 +18,7 @@
 
 ```bash
 # Adicionar o repositório remoto
-git remote add origin https://github.com/SEU_USUARIO/routini.git
+git remote add origin https://github.com/elissoncardoso1/routini.git
 
 # Fazer push das mudanças
 git branch -M main

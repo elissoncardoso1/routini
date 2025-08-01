@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    __APP_NAME__: JSON.stringify('Routini'),
+    __APP_REPOSITORY__: JSON.stringify('https://github.com/elissoncardoso1/routini')
+  },
   assetsInclude: ['**/*.svg'],
   base: './', // Importante para Electron - usar caminhos relativos
   build: {

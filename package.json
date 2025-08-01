@@ -5,6 +5,15 @@
   "main": "dist-electron/electron.js",
   "description": "Sistema de agendamento e gerenciamento de consultas - Routini (PWA)",
   "author": "Elisson Cardoso",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elissoncardoso1/routini.git"
+  },
+  "homepage": "https://github.com/elissoncardoso1/routini#readme",
+  "bugs": {
+    "url": "https://github.com/elissoncardoso1/routini/issues"
+  },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && tsc src/electron.ts --outDir dist-electron --esModuleInterop",
@@ -20,6 +29,11 @@
     "productName": "Routini",
     "directories": {
       "output": "release"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "elissoncardoso1",
+      "repo": "routini"
     },
     "files": [
       "dist/**/*",

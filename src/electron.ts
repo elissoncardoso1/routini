@@ -2,6 +2,11 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import fs from 'fs';
 
+// Informações do aplicativo
+const APP_NAME = 'Routini';
+const APP_VERSION = process.env.npm_package_version || '0.1.3-pwa';
+const APP_REPOSITORY = 'https://github.com/elissoncardoso1/routini';
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
