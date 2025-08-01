@@ -30,7 +30,7 @@ cat > web/index.html << 'EOF'
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" crossorigin src="./assets/index-B_AN0Jja.js"></script>
+    <script type="module" crossorigin src="./assets/index-BTVIKfVS.js"></script>
     <script>
         // Registrar service worker
         if ('serviceWorker' in navigator) {

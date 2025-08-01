@@ -19,12 +19,12 @@
 ## 🚀 Download
 
 ### Windows
-- **[Instalador](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-Setup-0.1.3.exe)** - Versão completa com instalador
-- **[Portátil](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-portable.exe)** - Executável standalone
+- **[Instalador PWA](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-Setup-0.1.3-pwa.exe)** - Versão PWA com instalador
+- **[Portátil PWA](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-pwa-portable.exe)** - Executável PWA standalone
 
 ### macOS
-- **[DMG](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-arm64.dmg)** - Instalador para macOS
-- **[ZIP](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-arm64-mac.zip)** - Versão compactada
+- **[DMG PWA](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-pwa-arm64.dmg)** - Instalador PWA para macOS
+- **[ZIP PWA](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-pwa-arm64-mac.zip)** - Versão PWA compactada
 
 ## 🛠️ Tecnologias Utilizadas
 

@@ -5,10 +5,11 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { LogoLoading } from './components/LogoLoading';
 import { SimpleFallback } from './components/ErrorFallback';
 import { WindowsDebug } from './components/WindowsDebug';
+import { DashboardSimple } from './components/DashboardSimple';
 
 // Lazy loading dos componentes principais
 const Calendar = lazy(() => import('./components/Calendar').then(module => ({ default: module.Calendar })))
-const Dashboard = lazy(() => import('./components/Dashboard').then(module => ({ default: module.Dashboard })))
+// const Dashboard = lazy(() => import('./components/Dashboard').then(module => ({ default: module.Dashboard })))
 const Cadastro = lazy(() => import('./pages/Cadastro').then(module => ({ default: module.Cadastro })))
 
 // Componente de loading melhorado
@@ -25,11 +26,11 @@ export function App() {
         <BrowserRouter>
           <Layout>
             <Suspense fallback={<AppLoadingSpinner />}>
-              <Routes>
-                <Route path="/" element={<Calendar />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/cadastro" element={<Cadastro />} />
-              </Routes>
+                               <Routes>
+                   <Route path="/" element={<Calendar />} />
+                   <Route path="/dashboard" element={<DashboardSimple />} />
+                   <Route path="/cadastro" element={<Cadastro />} />
+                 </Routes>
             </Suspense>
           </Layout>
         </BrowserRouter>

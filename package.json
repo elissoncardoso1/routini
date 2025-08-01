@@ -1,9 +1,9 @@
 {
   "name": "routini",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.1.3-pwa",
   "main": "dist-electron/electron.js",
-  "description": "Sistema de agendamento e gerenciamento de consultas - Routini",
+  "description": "Sistema de agendamento e gerenciamento de consultas - Routini (PWA)",
   "author": "Elisson Cardoso",
   "scripts": {
     "dev": "vite",
@@ -49,10 +49,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Routini",
-      "artifactName": "Routini-Setup-${version}.exe"
+                  "artifactName": "Routini-Setup-${version}-pwa.exe"
     },
     "portable": {
-      "artifactName": "Routini-${version}-portable.exe"
+              "artifactName": "Routini-${version}-pwa-portable.exe"
     }
   },
   "dependencies": {
