@@ -8,7 +8,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: false // Permite carregar recursos locais
+      webSecurity: false, // Permite carregar recursos locais
+      devTools: true // Sempre habilitar DevTools para debug
     }
   });
 
@@ -21,7 +22,27 @@ function createWindow() {
     // Em produção, carrega do arquivo local
     const indexPath = path.join(__dirname, '../dist/index.html');
     console.log('Carregando arquivo:', indexPath);
-    win.loadFile(indexPath);
+    
+    // Verificar se o arquivo existe
+    const fs = require('fs');
+    if (fs.existsSync(indexPath)) {
+      console.log('✅ Arquivo index.html encontrado');
+      win.loadFile(indexPath);
+      
+      // Abrir DevTools em produção para debug
+      win.webContents.openDevTools();
+      
+      // Log de erros
+      win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+        console.error('❌ Erro ao carregar:', errorCode, errorDescription);
+      });
+      
+      win.webContents.on('did-finish-load', () => {
+        console.log('✅ Página carregada com sucesso');
+      });
+    } else {
+      console.error('❌ Arquivo index.html não encontrado em:', indexPath);
+    }
   }
 }
 

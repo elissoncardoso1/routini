@@ -12,7 +12,8 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            webSecurity: false // Permite carregar recursos locais
+            webSecurity: false, // Permite carregar recursos locais
+            devTools: true // Sempre habilitar DevTools para debug
         }
     });
     // Em desenvolvimento, carrega do servidor Vite
@@ -25,7 +26,24 @@ function createWindow() {
         // Em produção, carrega do arquivo local
         var indexPath = path_1.default.join(__dirname, '../dist/index.html');
         console.log('Carregando arquivo:', indexPath);
-        win.loadFile(indexPath);
+        // Verificar se o arquivo existe
+        var fs = require('fs');
+        if (fs.existsSync(indexPath)) {
+            console.log('✅ Arquivo index.html encontrado');
+            win.loadFile(indexPath);
+            // Abrir DevTools em produção para debug
+            win.webContents.openDevTools();
+            // Log de erros
+            win.webContents.on('did-fail-load', function (event, errorCode, errorDescription) {
+                console.error('❌ Erro ao carregar:', errorCode, errorDescription);
+            });
+            win.webContents.on('did-finish-load', function () {
+                console.log('✅ Página carregada com sucesso');
+            });
+        }
+        else {
+            console.error('❌ Arquivo index.html não encontrado em:', indexPath);
+        }
     }
 }
 electron_1.app.whenReady().then(createWindow);

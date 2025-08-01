@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LogoLoading } from './components/LogoLoading';
 import { SimpleFallback } from './components/ErrorFallback';
+import { WindowsDebug } from './components/WindowsDebug';
 
 // Lazy loading dos componentes principais
 const Calendar = lazy(() => import('./components/Calendar').then(module => ({ default: module.Calendar })))
@@ -20,17 +21,19 @@ const AppLoadingSpinner = () => (
 export function App() {
   return (
     <ErrorBoundary fallback={<SimpleFallback />}>
-      <BrowserRouter>
-        <Layout>
-          <Suspense fallback={<AppLoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Calendar />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/cadastro" element={<Cadastro />} />
-            </Routes>
-          </Suspense>
-        </Layout>
-      </BrowserRouter>
+      <WindowsDebug>
+        <BrowserRouter>
+          <Layout>
+            <Suspense fallback={<AppLoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Calendar />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/cadastro" element={<Cadastro />} />
+              </Routes>
+            </Suspense>
+          </Layout>
+        </BrowserRouter>
+      </WindowsDebug>
     </ErrorBoundary>
   );
 }

@@ -20,21 +20,43 @@
 
 @layer base {
   body {
-    @apply bg-background text-text;
-    /* Fallback para garantir que o body seja visível */
-    background-color: #f9fafb;
-    color: #1e293b;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  }
-  
-  /* Garantir que o root seja visível */
-  #root {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+  @apply bg-background text-text;
+  /* Fallback para garantir que o body seja visível */
+  background-color: #f9fafb;
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+/* Garantir que o root seja visível */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fallback adicional para Windows */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Garantir que componentes sejam visíveis */
+.fc {
+  height: 100% !important;
+}
+
+.fc-view-harness {
+  height: 100% !important;
+}
 }
 
 .fc .fc-event {
