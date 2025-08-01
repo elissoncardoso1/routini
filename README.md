@@ -175,8 +175,8 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 ## 👨‍💻 Autor
 
 **Elisson Coimbra**
-- GitHub: [@elissoncoimbra](https://github.com/elissoncoimbra)
-- Email: elissoncoimbra@gmail.com
+- GitHub: [@elissoncardoso1](https://github.com/elissoncardoso1)
+- Email: elissoncardoso1@gmail.com
 
 ## 🙏 Agradecimentos
 
