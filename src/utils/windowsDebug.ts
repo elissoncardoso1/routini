@@ -3,7 +3,17 @@ export class WindowsDebugger {
   private static instance: WindowsDebugger;
   private isWindows: boolean;
   private devicePixelRatio: number;
-  private screenInfo: any;
+  private screenInfo: {
+    width: number;
+    height: number;
+    availWidth: number;
+    availHeight: number;
+    devicePixelRatio: number;
+    innerWidth: number;
+    innerHeight: number;
+    clientWidth: number;
+    clientHeight: number;
+  };
 
   constructor() {
     this.isWindows = this.detectWindows();
@@ -228,7 +238,16 @@ export class WindowsDebugger {
   }
 
   // Gerar relatório completo
-  generateReport(): object {
+  generateReport(): {
+    isWindows: boolean;
+    devicePixelRatio: number;
+    screenInfo: typeof this.screenInfo;
+    dpiIssues: string[];
+    renderingIssues: string[];
+    userAgent: string;
+    platform: string;
+    language: string;
+  } {
     return {
       isWindows: this.isWindows,
       devicePixelRatio: this.devicePixelRatio,
@@ -249,17 +268,17 @@ export class WindowsDebugger {
 
 // Função de inicialização automática
 export function initializeWindowsDebug(): void {
-  const debugger = WindowsDebugger.getInstance();
+  const debuggerInstance = WindowsDebugger.getInstance();
   
   // Aplicar correções automaticamente
-  debugger.applyWindowsFixes();
+  debuggerInstance.applyWindowsFixes();
   
   // Log de debug
-  debugger.logDebugInfo();
+  debuggerInstance.logDebugInfo();
   
   // Verificar problemas
-  const dpiIssues = debugger.detectDPIIssues();
-  const renderingIssues = debugger.detectRenderingIssues();
+  const dpiIssues = debuggerInstance.detectDPIIssues();
+  const renderingIssues = debuggerInstance.detectRenderingIssues();
   
   if (dpiIssues.length > 0 || renderingIssues.length > 0) {
     console.warn('⚠️ Problemas detectados no Windows:', {

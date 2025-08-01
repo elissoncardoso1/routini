@@ -1,10 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import { WindowsDebugger } from '../utils/windowsDebug';
 
+interface DebugInfo {
+  isWindows: boolean;
+  devicePixelRatio: number;
+  screenInfo: {
+    width: number;
+    height: number;
+    availWidth: number;
+    availHeight: number;
+    devicePixelRatio: number;
+    innerWidth: number;
+    innerHeight: number;
+    clientWidth: number;
+    clientHeight: number;
+  };
+  dpiIssues: string[];
+  renderingIssues: string[];
+  userAgent: string;
+  platform: string;
+  language: string;
+}
+
+interface TestResults {
+  viewport?: {
+    screen: string;
+    inner: string;
+    client: string;
+    devicePixelRatio: number;
+  };
+  elements?: {
+    rootExists: boolean;
+    rootDimensions: string;
+    calendarExists: boolean;
+    calendarDimensions: string;
+  };
+  css?: {
+    stylesheetsCount: number;
+    bodyFontFamily: string;
+    rootDisplay: string;
+  };
+  dpiIssues?: string[];
+  renderingIssues?: string[];
+}
+
 export function WindowsTestPanel() {
   const [isVisible, setIsVisible] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
-  const [testResults, setTestResults] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
+  const [testResults, setTestResults] = useState<TestResults>({});
 
   useEffect(() => {
     // Mostrar painel apenas no Windows
@@ -18,12 +61,12 @@ export function WindowsTestPanel() {
   }, []);
 
   const updateDebugInfo = () => {
-    const debugger = WindowsDebugger.getInstance();
-    setDebugInfo(debugger.generateReport());
+    const debuggerInstance = WindowsDebugger.getInstance();
+    setDebugInfo(debuggerInstance.generateReport());
   };
 
   const runTests = () => {
-    const results: any = {};
+    const results: TestResults = {};
     
     // Teste 1: Verificar viewport
     results.viewport = {
@@ -52,16 +95,16 @@ export function WindowsTestPanel() {
     };
 
     // Teste 4: Verificar problemas específicos
-    const debugger = WindowsDebugger.getInstance();
-    results.dpiIssues = debugger.detectDPIIssues();
-    results.renderingIssues = debugger.detectRenderingIssues();
+    const debuggerInstance = WindowsDebugger.getInstance();
+    results.dpiIssues = debuggerInstance.detectDPIIssues();
+    results.renderingIssues = debuggerInstance.detectRenderingIssues();
 
     setTestResults(results);
   };
 
   const applyFixes = () => {
-    const debugger = WindowsDebugger.getInstance();
-    debugger.applyWindowsFixes();
+    const debuggerInstance = WindowsDebugger.getInstance();
+    debuggerInstance.applyWindowsFixes();
     updateDebugInfo();
     runTests();
   };
@@ -115,7 +158,7 @@ export function WindowsTestPanel() {
               </div>
 
               {/* Problemas */}
-              {testResults.dpiIssues?.length > 0 && (
+              {testResults.dpiIssues && testResults.dpiIssues.length > 0 && (
                 <div className="text-sm">
                   <div className="font-medium text-red-600">Problemas DPI:</div>
                   <div className="ml-2">
@@ -126,7 +169,7 @@ export function WindowsTestPanel() {
                 </div>
               )}
 
-              {testResults.renderingIssues?.length > 0 && (
+              {testResults.renderingIssues && testResults.renderingIssues.length > 0 && (
                 <div className="text-sm">
                   <div className="font-medium text-red-600">Problemas de Renderização:</div>
                   <div className="ml-2">

@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { App } from './App'
-import { JavaScriptFallback } from './components/JavaScriptFallback'
 import './index.css'
 
 // Função para renderizar com fallback

@@ -5,10 +5,31 @@ interface WindowsDebugProps {
   children: React.ReactNode;
 }
 
+interface DebugInfo {
+  isWindows: boolean;
+  devicePixelRatio: number;
+  screenInfo: {
+    width: number;
+    height: number;
+    availWidth: number;
+    availHeight: number;
+    devicePixelRatio: number;
+    innerWidth: number;
+    innerHeight: number;
+    clientWidth: number;
+    clientHeight: number;
+  };
+  dpiIssues: string[];
+  renderingIssues: string[];
+  userAgent: string;
+  platform: string;
+  language: string;
+}
+
 export function WindowsDebug({ children }: WindowsDebugProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
 
   useEffect(() => {
     // Inicializar debug do Windows
@@ -17,13 +38,12 @@ export function WindowsDebug({ children }: WindowsDebugProps) {
       
       // Aguardar um pouco para garantir que tudo carregou
       const timer = setTimeout(() => {
-        const debugger = WindowsDebugger.getInstance();
-        const info = debugger.generateReport();
+        const debuggerInstance = WindowsDebugger.getInstance();
+        const info = debuggerInstance.generateReport();
         setDebugInfo(info);
         
         // Verificar se há problemas críticos
-        const dpiIssues = debugger.detectDPIIssues();
-        const renderingIssues = debugger.detectRenderingIssues();
+        const renderingIssues = debuggerInstance.detectRenderingIssues();
         
         if (renderingIssues.length > 0) {
           setError(`Problemas de renderização detectados: ${renderingIssues.join(', ')}`);
@@ -81,8 +101,8 @@ export function WindowsDebug({ children }: WindowsDebugProps) {
               </button>
               <button
                 onClick={() => {
-                  const debugger = WindowsDebugger.getInstance();
-                  debugger.applyWindowsFixes();
+                  const debuggerInstance = WindowsDebugger.getInstance();
+                  debuggerInstance.applyWindowsFixes();
                   window.location.reload();
                 }}
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"

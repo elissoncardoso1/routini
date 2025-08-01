@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import fs from 'fs';
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -24,7 +25,6 @@ function createWindow() {
     console.log('Carregando arquivo:', indexPath);
     
     // Verificar se o arquivo existe
-    const fs = require('fs');
     if (fs.existsSync(indexPath)) {
       console.log('✅ Arquivo index.html encontrado');
       

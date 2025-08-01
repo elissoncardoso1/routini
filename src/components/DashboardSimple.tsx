@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export function DashboardSimple() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   useEffect(() => {
     // Simular carregamento
@@ -104,58 +104,22 @@ export function DashboardSimple() {
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Hoje</p>
-              <p className="text-2xl font-semibold text-gray-900">0</p>
+              <p className="text-sm font-medium text-gray-600">Horas</p>
+              <p className="text-2xl font-semibold text-gray-900">0h</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Seção de Próximos Atendimentos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Próximos Atendimentos</h2>
-          <div className="space-y-3">
-            <div className="text-center text-gray-500 py-8">
-              <svg className="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p>Nenhum atendimento agendado</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Mini Calendário</h2>
-          <div className="text-center text-gray-500 py-8">
-            <svg className="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <p>Calendário não disponível</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Mensagem de Status */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">
-              Dashboard Simplificado
-            </h3>
-            <div className="mt-2 text-sm text-blue-700">
-              <p>Esta é uma versão de teste do Dashboard. O banco de dados local não está disponível neste ambiente.</p>
-            </div>
-          </div>
+      {/* Gráfico Simples */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Atividade Recente</h2>
+        <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+          <p className="text-gray-500">Gráfico será implementado aqui</p>
         </div>
       </div>
     </div>

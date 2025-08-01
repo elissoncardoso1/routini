@@ -15,7 +15,7 @@ export function DashboardDebug({ children }: DashboardDebugProps) {
         console.log('🔍 Verificando Dashboard...');
         
         // Verificar se Dexie está disponível
-        if (typeof window !== 'undefined' && (window as any).Dexie) {
+        if (typeof window !== 'undefined' && (window as Record<string, unknown>).Dexie) {
           console.log('✅ Dexie disponível');
         } else {
           console.log('⚠️ Dexie não encontrado');
@@ -114,11 +114,11 @@ export function DashboardDebug({ children }: DashboardDebugProps) {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Carregando Dashboard...
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600">
             Verificando componentes e banco de dados
           </p>
-          <div className="text-sm text-gray-500">
-            {dbStatus}
+          <div className="mt-4 text-sm text-gray-500">
+            Status: {dbStatus}
           </div>
         </div>
       </div>
