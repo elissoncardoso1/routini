@@ -163,4 +163,47 @@
   .fc .fc-timegrid-slot {
     height: 2.5rem;
   }
+}
+
+/* Correções específicas para Windows */
+@media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+  .fc {
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .fc .fc-toolbar {
+    transform: translateZ(0);
+  }
+  
+  .fc .fc-view-harness {
+    transform: translateZ(0);
+  }
+  
+  .fc-event {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  
+  .fc .fc-button {
+    transform: translateZ(0);
+  }
+  
+  .fc .fc-timegrid-slot {
+    transform: translateZ(0);
+  }
+}
+
+/* Correções para DPI alto no Windows */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  .fc {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+  
+  .fc-event {
+    image-rendering: -webkit-optimize-contrast;
+  }
 } 

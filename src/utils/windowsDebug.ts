@@ -217,14 +217,42 @@ export class WindowsDebugger {
       }
     }
 
-    // Verificar se o calendário está visível
-    const calendar = document.querySelector('.fc');
+    // Verificar se o calendário está visível - múltiplos seletores para Windows
+    const calendarSelectors = [
+      '.fc',
+      '[data-testid="calendar"]',
+      '.fullcalendar',
+      '.calendar-container',
+      'div[class*="fc"]',
+      'div[class*="calendar"]'
+    ];
+    
+    let calendar = null;
+    for (const selector of calendarSelectors) {
+      calendar = document.querySelector(selector);
+      if (calendar) break;
+    }
+    
     if (!calendar) {
-      issues.push('Calendário não encontrado');
+      // Tentar encontrar por texto ou atributos
+      const allDivs = document.querySelectorAll('div');
+      for (const div of allDivs) {
+        if (div.innerHTML.includes('fc-') || div.innerHTML.includes('calendar')) {
+          calendar = div;
+          break;
+        }
+      }
+    }
+    
+    if (!calendar) {
+      issues.push('Calendário não encontrado - tentando correção automática');
+      // Tentar corrigir automaticamente
+      this.fixCalendarRendering();
     } else {
       const rect = calendar.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) {
-        issues.push('Calendário tem dimensões zero');
+        issues.push('Calendário tem dimensões zero - aplicando correção');
+        this.fixCalendarRendering();
       }
     }
 
@@ -235,6 +263,84 @@ export class WindowsDebugger {
     }
 
     return issues;
+  }
+
+  // Corrigir problemas específicos de renderização do calendário no Windows
+  private fixCalendarRendering(): void {
+    console.log('🔧 Aplicando correções específicas do calendário para Windows...');
+    
+    // Aguardar um pouco para garantir que o DOM está pronto
+    setTimeout(() => {
+      // Forçar re-renderização do calendário
+      const calendarElements = document.querySelectorAll('[class*="fc"]');
+      calendarElements.forEach(element => {
+        if (element instanceof HTMLElement) {
+          // Forçar reflow
+          element.style.display = 'none';
+          element.offsetHeight; // Trigger reflow
+          element.style.display = '';
+          
+          // Aplicar estilos específicos para Windows
+          element.style.transform = 'translateZ(0)'; // Force hardware acceleration
+          element.style.willChange = 'transform';
+        }
+      });
+
+      // Corrigir problemas de DPI específicos do calendário
+      const dpi = window.devicePixelRatio || 1;
+      if (dpi > 1) {
+        const calendarContainer = document.querySelector('.fc') as HTMLElement;
+        if (calendarContainer) {
+          calendarContainer.style.transform = `scale(${1/dpi})`;
+          calendarContainer.style.transformOrigin = 'top left';
+          calendarContainer.style.width = `${calendarContainer.offsetWidth * dpi}px`;
+          calendarContainer.style.height = `${calendarContainer.offsetHeight * dpi}px`;
+        }
+      }
+
+      // Garantir que o CSS do calendário está carregado
+      this.ensureCalendarCSS();
+    }, 100);
+  }
+
+  // Garantir que o CSS do calendário está carregado corretamente
+  private ensureCalendarCSS(): void {
+    const existingCSS = document.getElementById('calendar-windows-fix');
+    if (!existingCSS) {
+      const style = document.createElement('style');
+      style.id = 'calendar-windows-fix';
+      style.textContent = `
+        /* Correções específicas para Windows */
+        .fc {
+          transform: translateZ(0) !important;
+          will-change: transform !important;
+          -webkit-font-smoothing: antialiased !important;
+          -moz-osx-font-smoothing: grayscale !important;
+        }
+        
+        .fc .fc-toolbar {
+          transform: translateZ(0) !important;
+        }
+        
+        .fc .fc-view-harness {
+          transform: translateZ(0) !important;
+        }
+        
+        .fc-event {
+          transform: translateZ(0) !important;
+          backface-visibility: hidden !important;
+        }
+        
+        /* Correções para DPI alto no Windows */
+        @media screen and (-webkit-min-device-pixel-ratio: 2) {
+          .fc {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
   }
 
   // Gerar relatório completo

@@ -13,6 +13,7 @@ import { CALENDAR_CONFIG } from '../constants/calendar';
 import { useCalendarEvents } from '../hooks/useCalendarEvents';
 import { AgendamentoForm } from './AgendamentoForm';
 import { Dialog } from '@headlessui/react';
+import { initializeWindowsDebug } from '../utils/windowsDebug';
 
 export function Calendar() {
   const location = useLocation();
@@ -42,6 +43,12 @@ export function Calendar() {
       calendarApi.gotoDate(dateToGo);
     }
   }, [location.state?.selectedDate]);
+
+  // Efeito para inicializar debug do Windows
+  useEffect(() => {
+    // Inicializar debug do Windows para detectar e corrigir problemas
+    initializeWindowsDebug();
+  }, []);
 
   // Memoizar handlers para evitar re-criações
   const handleDateClick = useCallback(() => {
@@ -125,7 +132,7 @@ export function Calendar() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden" data-testid="calendar">
       <FullCalendar
         ref={calendarRef}
         {...calendarConfig}
