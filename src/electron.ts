@@ -27,7 +27,12 @@ function createWindow() {
     const fs = require('fs');
     if (fs.existsSync(indexPath)) {
       console.log('✅ Arquivo index.html encontrado');
-      win.loadFile(indexPath);
+      
+      // Usar protocolo file:// para melhor compatibilidade
+      const fileUrl = `file://${indexPath}`;
+      console.log('🌐 Carregando URL:', fileUrl);
+      
+      win.loadURL(fileUrl);
       
       // Abrir DevTools em produção para debug
       win.webContents.openDevTools();
@@ -40,6 +45,12 @@ function createWindow() {
       win.webContents.on('did-finish-load', () => {
         console.log('✅ Página carregada com sucesso');
       });
+      
+      // Log de console para debug
+      win.webContents.on('console-message', (event, level, message) => {
+        console.log(`📝 Console [${level}]:`, message);
+      });
+      
     } else {
       console.error('❌ Arquivo index.html não encontrado em:', indexPath);
     }

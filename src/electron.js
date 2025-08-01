@@ -25,7 +25,10 @@ function createWindow() {
         var fs = require('fs');
         if (fs.existsSync(indexPath)) {
             console.log('✅ Arquivo index.html encontrado');
-            win.loadFile(indexPath);
+            // Usar protocolo file:// para melhor compatibilidade
+            var fileUrl = "file://".concat(indexPath);
+            console.log('🌐 Carregando URL:', fileUrl);
+            win.loadURL(fileUrl);
             // Abrir DevTools em produção para debug
             win.webContents.openDevTools();
             // Log de erros
@@ -34,6 +37,10 @@ function createWindow() {
             });
             win.webContents.on('did-finish-load', function () {
                 console.log('✅ Página carregada com sucesso');
+            });
+            // Log de console para debug
+            win.webContents.on('console-message', function (event, level, message) {
+                console.log("\uD83D\uDCDD Console [".concat(level, "]:"), message);
             });
         }
         else {
