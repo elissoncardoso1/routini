@@ -6,6 +6,7 @@ import { LogoLoading } from './components/LogoLoading';
 import { SimpleFallback } from './components/ErrorFallback';
 import { WindowsDebug } from './components/WindowsDebug';
 import { DashboardSimple } from './components/DashboardSimple';
+import { WindowsTestPanel } from './components/WindowsTestPanel';
 
 // Lazy loading dos componentes principais
 const Calendar = lazy(() => import('./components/Calendar').then(module => ({ default: module.Calendar })))
@@ -34,6 +35,7 @@ export function App() {
             </Suspense>
           </Layout>
         </BrowserRouter>
+        <WindowsTestPanel />
       </WindowsDebug>
     </ErrorBoundary>
   );

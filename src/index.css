@@ -57,6 +57,97 @@ html, body {
 .fc-view-harness {
   height: 100% !important;
 }
+
+/* Correções específicas do Windows */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  /* IE/Edge specific fixes */
+  #root {
+    min-height: 100vh !important;
+    height: 100vh !important;
+  }
+  
+  .fc {
+    height: 100% !important;
+    min-height: 400px !important;
+  }
+}
+
+/* Correções para DPI scaling no Windows */
+@media screen and (min-resolution: 120dpi) {
+  * {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  .fc {
+    font-size: 14px !important;
+  }
+  
+  .fc .fc-button {
+    font-size: 14px !important;
+  }
+}
+
+/* Correções para viewport no Windows */
+@media screen and (max-width: 768px) {
+  .h-\[calc\(100vh-12rem\)\] {
+    height: calc(100vh - 8rem) !important;
+    min-height: 400px !important;
+  }
+}
+
+/* Fallbacks para fontes no Windows */
+@font-face {
+  font-family: 'WindowsFallback';
+  src: local('Segoe UI'), local('Tahoma'), local('Arial');
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'WindowsFallback', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Garantir que o calendário seja sempre visível */
+.fc {
+  height: 100% !important;
+  min-height: 400px !important;
+  font-family: inherit !important;
+}
+
+.fc-view-harness {
+  height: 100% !important;
+}
+
+.fc .fc-button {
+  font-family: inherit !important;
+}
+
+/* Correções para problemas de layout no Windows */
+.flex {
+  display: flex !important;
+}
+
+.flex-1 {
+  flex: 1 1 0% !important;
+}
+
+/* Garantir que elementos com calc() funcionem no Windows */
+.h-\[calc\(100vh-12rem\)\] {
+  height: calc(100vh - 12rem) !important;
+  min-height: 400px !important;
+}
+
+/* Correções para problemas de overflow */
+.overflow-hidden {
+  overflow: hidden !important;
+}
+
+.overflow-y-auto {
+  overflow-y: auto !important;
+}
 }
 
 .fc .fc-event {
