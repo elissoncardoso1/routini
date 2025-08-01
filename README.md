@@ -19,12 +19,12 @@
 ## 🚀 Download
 
 ### Windows
-- **[Instalador](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-Setup-0.1.2.exe)** - Versão completa com instalador
-- **[Portátil](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.2-portable.exe)** - Executável standalone
+- **[Instalador](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-Setup-0.1.3.exe)** - Versão completa com instalador
+- **[Portátil](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-portable.exe)** - Executável standalone
 
 ### macOS
-- **[DMG](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.2-arm64.dmg)** - Instalador para macOS
-- **[ZIP](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.2-arm64-mac.zip)** - Versão compactada
+- **[DMG](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-arm64.dmg)** - Instalador para macOS
+- **[ZIP](https://github.com/elissoncardoso1/routini/releases/latest/download/Routini-0.1.3-arm64-mac.zip)** - Versão compactada
 
 ## 🛠️ Tecnologias Utilizadas
 

@@ -20,12 +20,12 @@ if ! gh auth status &> /dev/null; then
 fi
 
 # Verificar se os executáveis existem
-if [ ! -f "release/Routini-Setup-0.1.2.exe" ]; then
+if [ ! -f "release/Routini-Setup-0.1.3.exe" ]; then
     echo "❌ Executável Windows não encontrado. Execute: npm run electron:build:win"
     exit 1
 fi
 
-if [ ! -f "release/Routini-0.1.2-portable.exe" ]; then
+if [ ! -f "release/Routini-0.1.3-portable.exe" ]; then
     echo "❌ Executável portátil não encontrado. Execute: npm run electron:build:win"
     exit 1
 fi
@@ -36,28 +36,28 @@ echo "✅ Executáveis encontrados!"
 echo "📤 Fazendo upload dos executáveis..."
 
 # Windows Setup
-gh release upload v0.1.2 release/Routini-Setup-0.1.2.exe \
+gh release upload v0.1.3 release/Routini-Setup-0.1.3.exe \
     --repo elissoncardoso1/routini \
     --clobber
 
 # Windows Portable
-gh release upload v0.1.2 release/Routini-0.1.2-portable.exe \
+gh release upload v0.1.3 release/Routini-0.1.3-portable.exe \
     --repo elissoncardoso1/routini \
     --clobber
 
 # macOS DMG (se existir)
-if [ -f "release/Routini-0.1.2-arm64.dmg" ]; then
-    gh release upload v0.1.2 release/Routini-0.1.2-arm64.dmg \
+if [ -f "release/Routini-0.1.3-arm64.dmg" ]; then
+    gh release upload v0.1.3 release/Routini-0.1.3-arm64.dmg \
         --repo elissoncardoso1/routini \
         --clobber
 fi
 
 # macOS ZIP (se existir)
-if [ -f "release/Routini-0.1.2-arm64-mac.zip" ]; then
-    gh release upload v0.1.2 release/Routini-0.1.2-arm64-mac.zip \
+if [ -f "release/Routini-0.1.3-arm64-mac.zip" ]; then
+    gh release upload v0.1.3 release/Routini-0.1.3-arm64-mac.zip \
         --repo elissoncardoso1/routini \
         --clobber
 fi
 
 echo "✅ Upload concluído!"
-echo "🌐 Acesse: https://github.com/elissoncardoso1/routini/releases/tag/v0.1.2" 
+echo "🌐 Acesse: https://github.com/elissoncardoso1/routini/releases/tag/v0.1.3" 
