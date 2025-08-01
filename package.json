@@ -1,9 +1,9 @@
 {
-  "name": "escala-react",
+  "name": "routini",
   "private": true,
   "version": "0.1.0-alpha.1",
   "main": "dist-electron/electron.js",
-  "description": "Sistema de agendamento e gerenciamento de consultas",
+  "description": "Sistema de agendamento e gerenciamento de consultas - Routini",
   "author": "Elisson Coimbra",
   "scripts": {
     "dev": "vite",
@@ -16,8 +16,8 @@
     "electron:preview": "npm run build && electron ."
   },
   "build": {
-    "appId": "com.escala.app",
-    "productName": "Escala - Sistema de Agendamento",
+    "appId": "com.routini.app",
+    "productName": "Routini",
     "directories": {
       "output": "release"
     },
@@ -48,11 +48,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Escala",
-      "artifactName": "Escala-Setup-${version}.exe"
+      "shortcutName": "Routini",
+      "artifactName": "Routini-Setup-${version}.exe"
     },
     "portable": {
-      "artifactName": "Escala-${version}-portable.exe"
+      "artifactName": "Routini-${version}-portable.exe"
     }
   },
   "dependencies": {
