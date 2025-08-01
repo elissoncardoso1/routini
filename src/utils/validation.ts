@@ -51,7 +51,7 @@ export const sanitizeDate = (date: Date | string): Date => {
 };
 
 // Funções de validação
-export const validateRequired = (value: any): boolean => {
+export const validateRequired = (value: unknown): boolean => {
   if (value === null || value === undefined) return false;
   if (typeof value === 'string') return value.trim().length > 0;
   if (Array.isArray(value)) return value.length > 0;
@@ -104,7 +104,7 @@ export const validateDate = (date: Date): boolean => {
 };
 
 // Função principal de validação
-export const validateField = (value: any, rules: ValidationRule): ValidationResult => {
+export const validateField = (value: unknown, rules: ValidationRule): ValidationResult => {
   const errors: string[] = [];
   
   // Validação de campo obrigatório
@@ -142,7 +142,7 @@ export const validateField = (value: any, rules: ValidationRule): ValidationResu
 };
 
 // Função para validar um objeto completo
-export const validateForm = (data: any, schema: ValidationSchema): ValidationResult => {
+export const validateForm = (data: Record<string, unknown>, schema: ValidationSchema): ValidationResult => {
   const errors: string[] = [];
   let isValid = true;
   

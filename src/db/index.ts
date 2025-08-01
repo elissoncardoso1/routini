@@ -128,16 +128,16 @@ export class EscalaDatabase extends Dexie {
           ]);
           
           // Converter strings ISO para objetos Date nas datas
-          const processedAtendimentos = (data.atendimentos || []).map((atendimento: any) => ({
+          const processedAtendimentos = (data.atendimentos || []).map((atendimento) => ({
             ...atendimento,
             inicio: new Date(atendimento.inicio),
             fim: new Date(atendimento.fim)
-          }));
+          })) as Atendimento[];
           
-          const processedPacientes = (data.pacientes || []).map((paciente: any) => ({
+          const processedPacientes = (data.pacientes || []).map((paciente) => ({
             ...paciente,
             dataNascimento: paciente.dataNascimento ? new Date(paciente.dataNascimento) : new Date()
-          }));
+          })) as Paciente[];
 
           // Importar dados
           if (data.profissionais?.length) await this.profissionais.bulkAdd(data.profissionais);

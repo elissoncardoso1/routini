@@ -76,7 +76,7 @@ export function Calendar() {
   }, []);
 
   // Memoizar o evento de montagem do tooltip
-  const handleEventDidMount = useCallback((info: any) => {
+  const handleEventDidMount = useCallback((info: { el: HTMLElement; event: { extendedProps: { tooltip?: string } } }) => {
     tippy(info.el, {
       content: info.event.extendedProps.tooltip,
       placement: 'top',
@@ -87,7 +87,7 @@ export function Calendar() {
   }, []);
 
   // Memoizar o conteúdo do evento
-  const handleEventContent = useCallback((arg: any) => {
+  const handleEventContent = useCallback((arg: { event: { title: string; backgroundColor?: string; borderColor?: string; textColor?: string; extendedProps: { icon?: string } } }) => {
     const icon = arg.event.extendedProps.icon ?? '📌';
     const [paciente, profissional] = arg.event.title.split(' - ');
 

@@ -147,7 +147,7 @@ export function Dashboard() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   if (loading) {
     return (
