@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [react()],
     assetsInclude: ['**/*.svg'],
+    base: './', // Importante para Electron - usar caminhos relativos
     build: {
         rollupOptions: {
             output: {

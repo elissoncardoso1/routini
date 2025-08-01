@@ -11,16 +11,21 @@ function createWindow() {
         height: 800,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            webSecurity: false // Permite carregar recursos locais
         }
     });
     // Em desenvolvimento, carrega do servidor Vite
     if (process.env.NODE_ENV === 'development') {
         win.loadURL('http://localhost:5173');
+        // Abrir DevTools em desenvolvimento
+        win.webContents.openDevTools();
     }
     else {
         // Em produção, carrega do arquivo local
-        win.loadFile(path_1.default.join(__dirname, '../dist/index.html'));
+        var indexPath = path_1.default.join(__dirname, '../dist/index.html');
+        console.log('Carregando arquivo:', indexPath);
+        win.loadFile(indexPath);
     }
 }
 electron_1.app.whenReady().then(createWindow);

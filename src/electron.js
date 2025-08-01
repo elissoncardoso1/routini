@@ -6,16 +6,21 @@ function createWindow() {
         height: 800,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            webSecurity: false // Permite carregar recursos locais
         }
     });
     // Em desenvolvimento, carrega do servidor Vite
     if (process.env.NODE_ENV === 'development') {
         win.loadURL('http://localhost:5173');
+        // Abrir DevTools em desenvolvimento
+        win.webContents.openDevTools();
     }
     else {
         // Em produção, carrega do arquivo local
-        win.loadFile(path.join(__dirname, '../dist/index.html'));
+        var indexPath = path.join(__dirname, '../dist/index.html');
+        console.log('Carregando arquivo:', indexPath);
+        win.loadFile(indexPath);
     }
 }
 app.whenReady().then(createWindow);

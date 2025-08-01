@@ -21,6 +21,19 @@
 @layer base {
   body {
     @apply bg-background text-text;
+    /* Fallback para garantir que o body seja visível */
+    background-color: #f9fafb;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+  
+  /* Garantir que o root seja visível */
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 }
 

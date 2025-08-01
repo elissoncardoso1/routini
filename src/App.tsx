@@ -3,6 +3,8 @@ import { Layout } from './components/Layout';
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LogoLoading } from './components/LogoLoading';
+import { SimpleFallback } from './components/ErrorFallback';
+
 // Lazy loading dos componentes principais
 const Calendar = lazy(() => import('./components/Calendar').then(module => ({ default: module.Calendar })))
 const Dashboard = lazy(() => import('./components/Dashboard').then(module => ({ default: module.Dashboard })))
@@ -17,7 +19,7 @@ const AppLoadingSpinner = () => (
 
 export function App() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<SimpleFallback />}>
       <BrowserRouter>
         <Layout>
           <Suspense fallback={<AppLoadingSpinner />}>
