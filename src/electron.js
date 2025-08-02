@@ -10,9 +10,9 @@ function createWindow() {
         width: 1200,
         height: 800,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            webSecurity: false, // Permite carregar recursos locais
+            nodeIntegration: false, // Segurança: desabilitar integração Node.js
+            contextIsolation: true, // Segurança: isolar contexto
+            webSecurity: true, // Segurança: habilitar web security
             devTools: true // Sempre habilitar DevTools para debug
         }
     });

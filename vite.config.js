@@ -24,14 +24,13 @@ export default defineConfig({
             }
         },
         chunkSizeWarningLimit: 1000,
-        sourcemap: false, // Desabilitar sourcemaps em produção para melhor performance
-        minify: 'terser',
-        terserOptions: {
-            compress: {
-                drop_console: true, // Remover console.log em produção
-                drop_debugger: true
-            }
-        }
+        sourcemap: true, // Habilitar sourcemaps para debug no Windows
+        minify: 'esbuild', // Usar esbuild para melhor compatibilidade com desktop
+        target: 'esnext', // Usar target moderno para melhor performance
+        // Configurações específicas para Windows
+        cssCodeSplit: true,
+        reportCompressedSize: false, // Desabilitar para melhor performance
+        emptyOutDir: true
     },
     optimizeDeps: {
         include: [
@@ -42,6 +41,17 @@ export default defineConfig({
             '@fullcalendar/core',
             'date-fns',
             'dexie'
-        ]
+        ],
+        // Configurações específicas para Windows
+        force: false,
+        esbuildOptions: {
+            target: 'esnext'
+        }
+    },
+    // Configurações específicas para desenvolvimento
+    server: {
+        port: 5173,
+        strictPort: true,
+        host: true
     }
 });

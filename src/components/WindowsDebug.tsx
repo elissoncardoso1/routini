@@ -21,6 +21,8 @@ interface DebugInfo {
   };
   dpiIssues: string[];
   renderingIssues: string[];
+  routingIssues: string[];
+  loadingIssues: string[];
   userAgent: string;
   platform: string;
   language: string;
@@ -44,9 +46,13 @@ export function WindowsDebug({ children }: WindowsDebugProps) {
         
         // Verificar se há problemas críticos
         const renderingIssues = debuggerInstance.detectRenderingIssues();
+        const routingIssues = debuggerInstance.detectRoutingIssues();
+        const loadingIssues = debuggerInstance.detectLoadingIssues();
         
-        if (renderingIssues.length > 0) {
-          setError(`Problemas de renderização detectados: ${renderingIssues.join(', ')}`);
+        const allIssues = [...renderingIssues, ...routingIssues, ...loadingIssues];
+        
+        if (allIssues.length > 0) {
+          setError(`Problemas detectados: ${allIssues.join(', ')}`);
         } else {
           setIsLoaded(true);
         }
@@ -87,6 +93,12 @@ export function WindowsDebug({ children }: WindowsDebugProps) {
                   <div><strong>Viewport:</strong> {debugInfo.screenInfo.innerWidth}x{debugInfo.screenInfo.innerHeight}</div>
                   {debugInfo.dpiIssues.length > 0 && (
                     <div><strong>Problemas DPI:</strong> {debugInfo.dpiIssues.join(', ')}</div>
+                  )}
+                  {debugInfo.routingIssues.length > 0 && (
+                    <div><strong>Problemas de Roteamento:</strong> {debugInfo.routingIssues.join(', ')}</div>
+                  )}
+                  {debugInfo.loadingIssues.length > 0 && (
+                    <div><strong>Problemas de Carregamento:</strong> {debugInfo.loadingIssues.join(', ')}</div>
                   )}
                 </div>
               </div>
@@ -136,6 +148,7 @@ export function WindowsDebug({ children }: WindowsDebugProps) {
             <div className="mt-4 p-3 bg-blue-50 rounded text-sm">
               <div>DPI: {debugInfo.devicePixelRatio}x</div>
               <div>Resolução: {debugInfo.screenInfo.width}x{debugInfo.screenInfo.height}</div>
+              <div>URL: {window.location.href}</div>
             </div>
           )}
         </div>

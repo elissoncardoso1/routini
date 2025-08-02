@@ -47,6 +47,78 @@ export class WindowsDebugger {
     };
   }
 
+  // Detectar problemas de roteamento específicos do Windows
+  detectRoutingIssues(): string[] {
+    const issues: string[] = [];
+    
+    if (this.isWindows) {
+      // Verificar se está usando HashRouter
+      const currentUrl = window.location.href;
+      if (!currentUrl.includes('#')) {
+        issues.push('BrowserRouter detectado - deve usar HashRouter no Windows');
+      }
+
+      // Verificar se há problemas com protocolo file://
+      if (currentUrl.startsWith('file://')) {
+        console.log('✅ Protocolo file:// detectado - compatível com Windows');
+      }
+
+      // Verificar se o React Router está funcionando
+      const routerElements = document.querySelectorAll('[data-router]');
+      if (routerElements.length === 0) {
+        issues.push('React Router não detectado - verificar configuração');
+      }
+    }
+
+    return issues;
+  }
+
+  // Detectar problemas de carregamento de componentes
+  detectLoadingIssues(): string[] {
+    const issues: string[] = [];
+    
+    // Verificar se o root está carregado
+    const root = document.getElementById('root');
+    if (!root) {
+      issues.push('Elemento #root não encontrado');
+    } else {
+      const rect = root.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        issues.push('Elemento #root tem dimensões zero');
+      }
+    }
+
+    // Verificar se há elementos React renderizados
+    const reactElements = document.querySelectorAll('[data-reactroot]');
+    if (reactElements.length === 0) {
+      // Tentar outros seletores
+      const appElements = document.querySelectorAll('[id*="app"], [class*="app"]');
+      if (appElements.length === 0) {
+        issues.push('Nenhum elemento React detectado');
+      }
+    }
+
+    // Verificar se há problemas com CSS
+    const stylesheets = document.styleSheets;
+    if (stylesheets.length === 0) {
+      issues.push('Nenhum stylesheet carregado');
+    } else {
+      // Verificar se há erros de carregamento de CSS
+      for (let i = 0; i < stylesheets.length; i++) {
+        try {
+          const rules = stylesheets[i].cssRules;
+          if (!rules) {
+            issues.push(`Stylesheet ${i} não carregou corretamente`);
+          }
+        } catch (e) {
+          issues.push(`Erro ao acessar stylesheet ${i}: ${e}`);
+        }
+      }
+    }
+
+    return issues;
+  }
+
   // Detectar problemas de DPI/Scaling
   detectDPIIssues(): string[] {
     const issues: string[] = [];
@@ -89,6 +161,9 @@ export class WindowsDebugger {
 
     // 4. Corrigir problemas de DPI
     this.fixDPIIssues();
+
+    // 5. Corrigir problemas de roteamento
+    this.fixRoutingIssues();
   }
 
   private fixViewportIssues(): void {
@@ -197,6 +272,30 @@ export class WindowsDebugger {
       /* Corrigir problemas de ícones */
       svg {
         shape-rendering: geometricPrecision;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  private fixRoutingIssues(): void {
+    // Corrigir problemas específicos de roteamento no Windows
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Garantir que rotas sejam visíveis */
+      [data-router] {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Corrigir problemas de navegação */
+      nav {
+        z-index: 1000 !important;
+      }
+
+      /* Garantir que links funcionem */
+      a {
+        cursor: pointer !important;
       }
     `;
     document.head.appendChild(style);
@@ -360,6 +459,8 @@ export class WindowsDebugger {
     };
     dpiIssues: string[];
     renderingIssues: string[];
+    routingIssues: string[];
+    loadingIssues: string[];
     userAgent: string;
     platform: string;
     language: string;
@@ -370,6 +471,8 @@ export class WindowsDebugger {
       screenInfo: this.screenInfo,
       dpiIssues: this.detectDPIIssues(),
       renderingIssues: this.detectRenderingIssues(),
+      routingIssues: this.detectRoutingIssues(),
+      loadingIssues: this.detectLoadingIssues(),
       userAgent: navigator.userAgent,
       platform: navigator.platform,
       language: navigator.language
@@ -395,11 +498,15 @@ export function initializeWindowsDebug(): void {
   // Verificar problemas
   const dpiIssues = debuggerInstance.detectDPIIssues();
   const renderingIssues = debuggerInstance.detectRenderingIssues();
+  const routingIssues = debuggerInstance.detectRoutingIssues();
+  const loadingIssues = debuggerInstance.detectLoadingIssues();
   
-  if (dpiIssues.length > 0 || renderingIssues.length > 0) {
+  if (dpiIssues.length > 0 || renderingIssues.length > 0 || routingIssues.length > 0 || loadingIssues.length > 0) {
     console.warn('⚠️ Problemas detectados no Windows:', {
       dpiIssues,
-      renderingIssues
+      renderingIssues,
+      routingIssues,
+      loadingIssues
     });
   }
 } 

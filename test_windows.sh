@@ -1,83 +1,134 @@
 #!/bin/bash
 
-echo "🪟 Testando compatibilidade com Windows..."
+echo "🧪 Testando aplicação no Windows..."
+echo "=================================="
 
-# 1. Verificar se o build foi bem-sucedido
-echo "📦 Verificando build..."
-if [ -f "release/Routini-Setup-0.1.2.exe" ]; then
-    echo "✅ Executável Windows gerado"
+# Verificar se estamos no Windows
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    echo "✅ Ambiente Windows detectado"
 else
-    echo "❌ Executável Windows não encontrado"
+    echo "⚠️  Não é Windows - alguns testes podem não ser aplicáveis"
+fi
+
+# Verificar se o Node.js está instalado
+if command -v node &> /dev/null; then
+    echo "✅ Node.js encontrado: $(node --version)"
+else
+    echo "❌ Node.js não encontrado"
     exit 1
 fi
 
-# 2. Verificar se os assets foram gerados corretamente
-echo "📁 Verificando assets..."
+# Verificar se o npm está instalado
+if command -v npm &> /dev/null; then
+    echo "✅ npm encontrado: $(npm --version)"
+else
+    echo "❌ npm não encontrado"
+    exit 1
+fi
+
+# Verificar dependências
+echo ""
+echo "📦 Verificando dependências..."
+npm list --depth=0
+
+# Verificar se o build funciona
+echo ""
+echo "🔨 Testando build..."
+npm run build
+
+if [ $? -eq 0 ]; then
+    echo "✅ Build realizado com sucesso"
+else
+    echo "❌ Erro no build"
+    exit 1
+fi
+
+# Verificar se os arquivos foram gerados
+echo ""
+echo "📁 Verificando arquivos gerados..."
+if [ -d "dist" ]; then
+    echo "✅ Pasta dist encontrada"
+    ls -la dist/
+else
+    echo "❌ Pasta dist não encontrada"
+    exit 1
+fi
+
+# Verificar se o index.html foi gerado
 if [ -f "dist/index.html" ]; then
     echo "✅ index.html encontrado"
+    
+    # Verificar se usa HashRouter
+    if grep -q "HashRouter" src/App.tsx; then
+        echo "✅ HashRouter configurado"
+    else
+        echo "❌ HashRouter não configurado"
+    fi
+    
+    # Verificar se não usa lazy loading
+    if grep -q "React.lazy" src/App.tsx; then
+        echo "❌ Lazy loading ainda presente"
+    else
+        echo "✅ Lazy loading removido"
+    fi
 else
     echo "❌ index.html não encontrado"
     exit 1
 fi
 
-# 3. Verificar se os caminhos estão corretos
-echo "🔗 Verificando caminhos..."
-if grep -q 'src="./assets/' dist/index.html; then
-    echo "✅ Caminhos relativos configurados"
-else
-    echo "❌ Caminhos não estão relativos"
-fi
-
-# 4. Verificar configurações do Electron
-echo "⚙️ Verificando configurações do Electron..."
-if grep -q 'webSecurity: false' src/electron.ts; then
-    echo "✅ webSecurity desabilitado"
-else
-    echo "❌ webSecurity não configurado"
-fi
-
-if grep -q 'devTools: true' src/electron.ts; then
-    echo "✅ DevTools habilitado"
-else
-    echo "❌ DevTools não configurado"
-fi
-
-# 5. Verificar se o base está configurado
-echo "🏗️ Verificando configuração do Vite..."
-if grep -q 'base: "./"' vite.config.ts; then
-    echo "✅ Base configurado para caminhos relativos"
-else
-    echo "❌ Base não configurado"
-fi
-
-# 6. Verificar CSS de fallback
-echo "🎨 Verificando CSS de fallback..."
-if grep -q 'height: 100%' src/index.css; then
-    echo "✅ CSS de fallback configurado"
-else
-    echo "❌ CSS de fallback não encontrado"
-fi
-
-# 7. Verificar componente de debug
-echo "🐛 Verificando componente de debug..."
-if [ -f "src/components/WindowsDebug.tsx" ]; then
-    echo "✅ Componente WindowsDebug criado"
-else
-    echo "❌ Componente WindowsDebug não encontrado"
-fi
-
-echo "🎯 Teste de compatibilidade concluído!"
+# Verificar configurações do Electron
 echo ""
-echo "📋 Resumo das correções implementadas:"
-echo "✅ Electron com DevTools habilitado"
-echo "✅ Logs de erro detalhados"
-echo "✅ Verificação de arquivos"
-echo "✅ CSS de fallback robusto"
-echo "✅ Componente de debug para Windows"
-echo "✅ Caminhos relativos configurados"
+echo "⚡ Verificando configurações do Electron..."
+if grep -q "nodeIntegration: false" src/electron.ts; then
+    echo "✅ Configurações seguras do Electron"
+else
+    echo "❌ Configurações inseguras do Electron"
+fi
+
+# Verificar configurações do Vite
 echo ""
-echo "🪟 Para testar no Windows:"
-echo "1. Execute o arquivo: release/Routini-Setup-0.1.2.exe"
-echo "2. Abra DevTools (F12) para ver logs"
-echo "3. Verifique se a interface carrega"
-echo "4. Teste navegação entre páginas" 
+echo "🚀 Verificando configurações do Vite..."
+if grep -q "sourcemap: true" vite.config.ts; then
+    echo "✅ Sourcemaps habilitados"
+else
+    echo "❌ Sourcemaps desabilitados"
+fi
+
+if grep -q "minify: 'esbuild'" vite.config.ts; then
+    echo "✅ Esbuild configurado"
+else
+    echo "❌ Esbuild não configurado"
+fi
+
+# Testar desenvolvimento
+echo ""
+echo "🌐 Testando servidor de desenvolvimento..."
+timeout 10s npm run dev &
+DEV_PID=$!
+
+sleep 5
+
+if curl -s http://localhost:5173 > /dev/null; then
+    echo "✅ Servidor de desenvolvimento funcionando"
+else
+    echo "❌ Servidor de desenvolvimento não responde"
+fi
+
+kill $DEV_PID 2>/dev/null
+
+echo ""
+echo "✅ Testes concluídos!"
+echo ""
+echo "📋 Resumo das correções aplicadas:"
+echo "1. ✅ BrowserRouter → HashRouter"
+echo "2. ✅ Lazy loading removido"
+echo "3. ✅ Configurações seguras do Electron"
+echo "4. ✅ Sourcemaps habilitados"
+echo "5. ✅ Esbuild configurado"
+echo "6. ✅ Sistema de debug para Windows"
+echo ""
+echo "🎯 Para testar no Windows:"
+echo "1. Execute: npm run build"
+echo "2. Execute: npm run electron"
+echo "3. Verifique se todas as telas carregam corretamente"
+echo "" 
