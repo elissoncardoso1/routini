@@ -42,6 +42,12 @@ interface TestResults {
   };
   dpiIssues?: string[];
   renderingIssues?: string[];
+  diagnosis?: {
+    critical: string[];
+    warnings: string[];
+    info: string[];
+    fixes: string[];
+  };
 }
 
 export function WindowsTestPanel() {
@@ -98,15 +104,52 @@ export function WindowsTestPanel() {
     const debuggerInstance = WindowsDebugger.getInstance();
     results.dpiIssues = debuggerInstance.detectDPIIssues();
     results.renderingIssues = debuggerInstance.detectRenderingIssues();
+    
+    // Teste 5: Diagnóstico avançado
+    results.diagnosis = debuggerInstance.diagnoseProblems();
 
     setTestResults(results);
   };
 
   const applyFixes = () => {
     const debuggerInstance = WindowsDebugger.getInstance();
+    console.log('🔧 Aplicando correções do Windows...');
+    
+    // Mostrar feedback visual
+    const button = document.querySelector('button[data-action="apply-fixes"]') as HTMLButtonElement;
+    if (button) {
+      button.textContent = 'Aplicando...';
+      button.disabled = true;
+    }
+    
+    // Aplicar correções
     debuggerInstance.applyWindowsFixes();
-    updateDebugInfo();
-    runTests();
+    
+    // Aguardar um pouco para as correções serem aplicadas
+    setTimeout(() => {
+      // Atualizar informações de debug
+      updateDebugInfo();
+      
+      // Executar testes novamente
+      runTests();
+      
+      // Mostrar que as correções foram aplicadas
+      if (button) {
+        button.textContent = 'Correções Aplicadas!';
+        button.style.backgroundColor = '#10b981'; // Verde
+      }
+      
+      // Forçar recarregamento da página após um breve delay
+      setTimeout(() => {
+        console.log('🔄 Recarregando página para aplicar correções...');
+        
+        // Salvar estado antes de recarregar
+        localStorage.setItem('windowsFixesApplied', 'true');
+        localStorage.setItem('windowsFixesTimestamp', Date.now().toString());
+        
+        window.location.reload();
+      }, 1500);
+    }, 500);
   };
 
   if (!isVisible) return null;
@@ -117,6 +160,27 @@ export function WindowsTestPanel() {
         <div className="p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Windows Debug Panel</h3>
           <p className="text-sm text-gray-600">Teste e correções para Windows</p>
+          
+          {/* Status de problemas */}
+          {Object.keys(testResults).length > 0 && testResults.diagnosis && (
+            <div className="mt-2">
+              {testResults.diagnosis.critical.length > 0 && (
+                <div className="text-sm text-red-600 font-medium">
+                  🚨 {testResults.diagnosis.critical.length} problema(s) crítico(s) detectado(s)
+                </div>
+              )}
+              {testResults.diagnosis.warnings.length > 0 && (
+                <div className="text-sm text-yellow-600 font-medium">
+                  ⚠️ {testResults.diagnosis.warnings.length} aviso(s) detectado(s)
+                </div>
+              )}
+              {testResults.diagnosis.critical.length === 0 && testResults.diagnosis.warnings.length === 0 && (
+                <div className="text-sm text-green-600 font-medium">
+                  ✅ Nenhum problema crítico detectado
+                </div>
+              )}
+            </div>
+          )}
         </div>
         
         <div className="p-4 space-y-4">
@@ -179,6 +243,55 @@ export function WindowsTestPanel() {
                   </div>
                 </div>
               )}
+
+              {/* Diagnóstico Avançado */}
+              {testResults.diagnosis && (
+                <div className="text-sm space-y-2">
+                  {testResults.diagnosis.critical.length > 0 && (
+                    <div>
+                      <div className="font-medium text-red-600">Problemas Críticos:</div>
+                      <div className="ml-2">
+                        {testResults.diagnosis.critical.map((issue: string, i: number) => (
+                          <div key={i} className="text-red-600">🚨 {issue}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {testResults.diagnosis.warnings.length > 0 && (
+                    <div>
+                      <div className="font-medium text-yellow-600">Avisos:</div>
+                      <div className="ml-2">
+                        {testResults.diagnosis.warnings.map((warning: string, i: number) => (
+                          <div key={i} className="text-yellow-600">⚠️ {warning}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {testResults.diagnosis.info.length > 0 && (
+                    <div>
+                      <div className="font-medium text-blue-600">Informações:</div>
+                      <div className="ml-2">
+                        {testResults.diagnosis.info.map((info: string, i: number) => (
+                          <div key={i} className="text-blue-600">ℹ️ {info}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {testResults.diagnosis.fixes.length > 0 && (
+                    <div>
+                      <div className="font-medium text-green-600">Correções Sugeridas:</div>
+                      <div className="ml-2">
+                        {testResults.diagnosis.fixes.map((fix: string, i: number) => (
+                          <div key={i} className="text-green-600">🔧 {fix}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -193,7 +306,8 @@ export function WindowsTestPanel() {
             
             <button
               onClick={applyFixes}
-              className="w-full bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700"
+              data-action="apply-fixes"
+              className="w-full bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700 font-semibold"
             >
               Aplicar Correções
             </button>

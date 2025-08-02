@@ -150,6 +150,9 @@ export class WindowsDebugger {
 
     console.log('🔧 Aplicando correções específicas do Windows...');
 
+    // Remover estilos anteriores para evitar duplicação
+    this.removeExistingFixes();
+
     // 1. Corrigir problemas de viewport
     this.fixViewportIssues();
 
@@ -164,6 +167,14 @@ export class WindowsDebugger {
 
     // 5. Corrigir problemas de roteamento
     this.fixRoutingIssues();
+
+    // 6. Forçar re-renderização após aplicar correções
+    this.forceRerender();
+
+    // 7. Salvar estado das correções aplicadas
+    localStorage.setItem('windowsFixesApplied', 'true');
+    
+    console.log('✅ Correções do Windows aplicadas com sucesso!');
   }
 
   private fixViewportIssues(): void {
@@ -173,10 +184,26 @@ export class WindowsDebugger {
       viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
     }
 
-    // Forçar recálculo do layout
-    document.body.style.width = '100vw';
-    document.body.style.height = '100vh';
-    document.body.style.overflow = 'hidden';
+    // Aplicar correções CSS permanentes
+    const style = document.createElement('style');
+    style.id = 'windows-fix-viewport';
+    style.textContent = `
+      /* Correções de viewport para Windows */
+      html, body {
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      #root {
+        width: 100vw !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   private fixFontIssues(): void {
@@ -210,6 +237,7 @@ export class WindowsDebugger {
   private fixLayoutIssues(): void {
     // Corrigir problemas de layout específicos do Windows
     const style = document.createElement('style');
+    style.id = 'windows-fix-layout';
     style.textContent = `
       /* Garantir que o root seja sempre visível */
       #root {
@@ -219,21 +247,39 @@ export class WindowsDebugger {
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
+        position: relative !important;
       }
 
       /* Corrigir problemas de flexbox no Windows */
       .flex {
         display: flex !important;
       }
+      
+      .flex-col {
+        flex-direction: column !important;
+      }
+      
+      .flex-1 {
+        flex: 1 1 0% !important;
+      }
 
       /* Garantir que o calendário seja visível */
       .fc {
         height: 100% !important;
         min-height: 400px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
       }
 
       .fc-view-harness {
         height: 100% !important;
+        min-height: 400px !important;
+      }
+      
+      /* Garantir que componentes React sejam visíveis */
+      [data-reactroot] {
+        height: 100% !important;
+        width: 100% !important;
       }
 
       /* Corrigir problemas de calc() no Windows */
@@ -248,6 +294,17 @@ export class WindowsDebugger {
           height: calc(100vh - 8rem) !important;
         }
       }
+      
+      /* Forçar visibilidade de elementos importantes */
+      .bg-white, .bg-gray-50, .bg-blue-50 {
+        background-color: inherit !important;
+        visibility: visible !important;
+      }
+      
+      /* Corrigir problemas de z-index no Windows */
+      .fixed {
+        z-index: 9999 !important;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -255,26 +312,61 @@ export class WindowsDebugger {
   private fixDPIIssues(): void {
     // Aplicar correções de DPI
     const style = document.createElement('style');
+    style.id = 'windows-fix-dpi';
     style.textContent = `
       /* Corrigir problemas de DPI no Windows */
       * {
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-        text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100% !important;
+        -ms-text-size-adjust: 100% !important;
+        text-size-adjust: 100% !important;
+        box-sizing: border-box !important;
       }
 
       /* Garantir que imagens sejam nítidas */
       img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
+        image-rendering: -webkit-optimize-contrast !important;
+        image-rendering: crisp-edges !important;
+        max-width: 100% !important;
+        height: auto !important;
       }
 
       /* Corrigir problemas de ícones */
       svg {
-        shape-rendering: geometricPrecision;
+        shape-rendering: geometricPrecision !important;
+        max-width: 100% !important;
+        height: auto !important;
+      }
+      
+      /* Forçar aceleração de hardware */
+      body, #root {
+        transform: translateZ(0) !important;
+        will-change: transform !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+      }
+      
+      /* Corrigir problemas de scaling em telas de alta DPI */
+      @media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+        * {
+          transform: translateZ(0) !important;
+        }
+      }
+      
+      /* Corrigir problemas específicos do calendário com DPI alto */
+      .fc * {
+        transform: translateZ(0) !important;
+        will-change: transform !important;
       }
     `;
     document.head.appendChild(style);
+    
+    // Aplicar correções diretas no DOM para DPI
+    const dpi = window.devicePixelRatio || 1;
+    if (dpi > 1) {
+      document.body.style.zoom = `${1/dpi}`;
+      document.body.style.transform = `scale(${dpi})`;
+      document.body.style.transformOrigin = 'top left';
+    }
   }
 
   private fixRoutingIssues(): void {
@@ -376,7 +468,7 @@ export class WindowsDebugger {
         if (element instanceof HTMLElement) {
           // Forçar reflow
           element.style.display = 'none';
-          element.offsetHeight; // Trigger reflow
+          void element.offsetHeight; // Trigger reflow
           element.style.display = '';
           
           // Aplicar estilos específicos para Windows
@@ -442,6 +534,37 @@ export class WindowsDebugger {
     }
   }
 
+  // Remover correções existentes para evitar duplicação
+  private removeExistingFixes(): void {
+    const existingStyles = document.querySelectorAll('style[id*="windows-fix"]');
+    existingStyles.forEach(style => style.remove());
+  }
+
+  // Forçar re-renderização completa
+  private forceRerender(): void {
+    // Forçar reflow de elementos críticos
+    const root = document.getElementById('root');
+    if (root) {
+      const display = root.style.display;
+      root.style.display = 'none';
+      void root.offsetHeight; // Trigger reflow
+      root.style.display = display || '';
+    }
+
+    // Forçar re-renderização do calendário
+    const calendar = document.querySelector('.fc');
+    if (calendar) {
+      const element = calendar as HTMLElement;
+      const display = element.style.display;
+      element.style.display = 'none';
+      void element.offsetHeight; // Trigger reflow
+      element.style.display = display || '';
+    }
+
+    // Disparar evento de resize para forçar recálculos
+    window.dispatchEvent(new Event('resize'));
+  }
+
   // Gerar relatório completo
   generateReport(): {
     isWindows: boolean;
@@ -479,6 +602,72 @@ export class WindowsDebugger {
     };
   }
 
+  // Diagnóstico avançado para identificar problemas específicos
+  diagnoseProblems(): {
+    critical: string[];
+    warnings: string[];
+    info: string[];
+    fixes: string[];
+  } {
+    const diagnosis = {
+      critical: [] as string[],
+      warnings: [] as string[],
+      info: [] as string[],
+      fixes: [] as string[]
+    };
+
+    // Verificações críticas
+    const root = document.getElementById('root');
+    if (!root) {
+      diagnosis.critical.push('Elemento #root não encontrado');
+      diagnosis.fixes.push('Verificar se o React está inicializando corretamente');
+    } else {
+      const rootRect = root.getBoundingClientRect();
+      if (rootRect.width === 0 || rootRect.height === 0) {
+        diagnosis.critical.push('Elemento #root tem dimensões zero');
+        diagnosis.fixes.push('Aplicar correções de layout');
+      }
+    }
+
+    // Verificar calendário
+    const calendar = document.querySelector('.fc');
+    if (!calendar) {
+      diagnosis.warnings.push('Calendário não detectado');
+      diagnosis.fixes.push('Verificar se o FullCalendar está carregando');
+    } else {
+      const calRect = calendar.getBoundingClientRect();
+      if (calRect.width === 0 || calRect.height === 0) {
+        diagnosis.warnings.push('Calendário tem dimensões zero');
+        diagnosis.fixes.push('Aplicar correções de renderização do calendário');
+      }
+    }
+
+    // Verificar CSS
+    if (document.styleSheets.length === 0) {
+      diagnosis.critical.push('Nenhum stylesheet carregado');
+      diagnosis.fixes.push('Verificar se o CSS está sendo carregado corretamente');
+    }
+
+    // Verificar DPI
+    if (this.devicePixelRatio > 1) {
+      diagnosis.info.push(`DPI alto detectado: ${this.devicePixelRatio}x`);
+      diagnosis.fixes.push('Aplicar correções de DPI');
+    }
+
+    // Verificar roteamento
+    if (!window.location.href.includes('#')) {
+      diagnosis.warnings.push('HashRouter não detectado');
+      diagnosis.fixes.push('Verificar se está usando HashRouter em vez de BrowserRouter');
+    }
+
+    return diagnosis;
+  }
+
+  // Verificar se é Windows (público)
+  isWindowsSystem(): boolean {
+    return this.isWindows;
+  }
+
   // Log de debug
   logDebugInfo(): void {
     console.log('🔍 Windows Debug Info:', this.generateReport());
@@ -489,8 +678,18 @@ export class WindowsDebugger {
 export function initializeWindowsDebug(): void {
   const debuggerInstance = WindowsDebugger.getInstance();
   
-  // Aplicar correções automaticamente
-  debuggerInstance.applyWindowsFixes();
+  // Verificar se as correções já foram aplicadas anteriormente
+  const fixesApplied = localStorage.getItem('windowsFixesApplied');
+  
+  if (debuggerInstance.isWindowsSystem()) {
+    // Aplicar correções automaticamente no Windows
+    debuggerInstance.applyWindowsFixes();
+    
+    // Se é a primeira vez ou se foram requisitadas novamente
+    if (!fixesApplied || fixesApplied !== 'true') {
+      console.log('🔧 Aplicando correções automáticas do Windows...');
+    }
+  }
   
   // Log de debug
   debuggerInstance.logDebugInfo();
@@ -508,5 +707,11 @@ export function initializeWindowsDebug(): void {
       routingIssues,
       loadingIssues
     });
+    
+    // Se há problemas, aplicar correções automaticamente
+    if (debuggerInstance.isWindowsSystem()) {
+      console.log('🔧 Aplicando correções automáticas devido a problemas detectados...');
+      debuggerInstance.applyWindowsFixes();
+    }
   }
 } 

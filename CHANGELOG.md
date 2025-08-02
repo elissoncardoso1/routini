@@ -5,6 +5,53 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [0.1.5] - 2025-08-01
+
+### Corrigido
+- **Correções críticas para problemas do Windows**
+  - Calendário não encontrado - sistema agora detecta e corrige automaticamente
+  - Problemas de carregamento da interface - implementado debug automático robusto
+  - Erro de roteamento persistente - melhorado sistema HashRouter
+  - Problemas de DPI/scaling - correções automáticas para telas de alta resolução
+  - React Router não detectado - diagnóstico e correção automática aprimorados
+  - Botão "Aplicar Correções" agora funciona efetivamente com recarregamento automático
+
+### Adicionado
+- **Sistema de Debug Automático Avançado**
+  - Diagnóstico completo com categorização (crítico, aviso, informação)
+  - Interface visual de debug no canto inferior direito (apenas no Windows)
+  - Correções persistentes salvas no localStorage
+  - Feedback visual durante aplicação de correções
+  - Recarregamento automático após aplicar correções
+  - Detecção automática de problemas na inicialização
+
+- **Correções Específicas Implementadas**
+  - Correções de viewport forçando dimensões corretas
+  - Correções de layout garantindo visibilidade de elementos React
+  - Correções de DPI com scaling automático para telas de alta resolução
+  - Correções de renderização do calendário com re-renderização forçada
+  - Remoção de estilos duplicados antes de aplicar novos
+  - Forçar aceleração de hardware para melhor performance
+
+- **Documentação Técnica**
+  - `WINDOWS_FIXES_GUIDE.md` - Guia completo de correções
+  - `test_windows_fixes.sh` - Script de verificação automática
+  - Diagnóstico avançado com sugestões de correções
+
+### Melhorado
+- **Interface de Debug**
+  - Status visual de problemas detectados
+  - Categorização clara de problemas (🚨 críticos, ⚠️ avisos, ℹ️ informações)
+  - Botão "Aplicar Correções" com feedback visual e estado
+  - Contadores de problemas detectados
+  - Informações detalhadas do sistema (DPI, resolução, viewport)
+
+- **Sistema de Correções**
+  - Aplicação automática na inicialização para sistemas Windows
+  - Persistência das correções aplicadas
+  - Re-aplicação automática quando problemas são detectados
+  - Verificação de timestamps para evitar correções desnecessárias
+
 ## [0.1.4] - 2024-08-01
 
 ### Corrigido
